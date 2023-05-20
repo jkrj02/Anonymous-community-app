@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_post"
+        android:icon="@drawable/post"
+        android:title="@string/title_post" />
+
+    <item
+        android:id="@+id/navigation_courese"
+        android:icon="@drawable/course"
+        android:title="@string/title_course" />
+
+    <item
+        android:id="@+id/navigation_message"
+        android:icon="@drawable/message"
+        android:title="@string/title_message" />
+
+    <item
+        android:id="@+id/navigation_me"
+        android:icon="@drawable/me"
+        android:title="@string/title_me" />
+
+</menu>

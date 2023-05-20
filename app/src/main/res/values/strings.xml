@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">理说</string>
+    <string name="title_post">匿名社区</string>
+    <string name="title_course">课程评价</string>
+    <string name="title_message">消息</string>
+    <string name="title_me">我的</string>
+</resources>
