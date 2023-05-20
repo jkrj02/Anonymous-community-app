@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    username: wang
+    password: bit2023
+    url: jdbc:mysql://8.130.124.255:3306/userinfo?useSSL=false&serverTimezone=Asia/Shanghai
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
