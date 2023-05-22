@@ -93,6 +93,7 @@ public class Controller {
         String sql = "SELECT * FROM course INNER JOIN user ON course.teacher_name = user.user_name";
         Query query = entityManager.createNativeQuery(sql, Course.class);//指定返回类型
         List<Course> courses = query.getResultList();
+        String a="ss";
         return courses;
     }
 
