@@ -19,7 +19,8 @@ public class User {
     @Id
     @Column(name = "userId")
     private int userId;
-
+    private boolean gender;
     private String userName;
     private String password;
+    private boolean isAdmin;
 }

@@ -1,11 +1,9 @@
 package com.example.demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -16,10 +14,16 @@ public class Post {
 
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
-    private int id;
-
-    private String courseName;
-    private String tearchName;
+    @Column(name = "postId")
+    private int postId;
+    private int typeId;
+    private int userId;
+    private String userName;
+    private String content;
+    private int imageNum;
+    private int commentCount;
+    private int likeCount;
+    private int dislikeCount;
+    private Date time;
 
 }

@@ -16,10 +16,14 @@ public class Dislike {
 
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
-    private int id;
-
-    private String courseName;
-    private String tearchName;
+    @Column(name = "dislikeId")
+    //private int id;
+    private int dislikeId ;
+    private int userId ;
+    private int postId ;
+    private int commentId ;
+    private int courseCommentId ;
+    //private String courseName;
+    //private String tearchName;
 
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -16,10 +17,17 @@ public class Comment {
 
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
-    private int id;
-
-    private String courseName;
-    private String tearchName;
+    @Column(name = "commentId")
+    private int commentId;
+    private int postId;
+    private int objectId;
+    private String userName;
+    private String content;
+    private int commentCount;
+    private int likeCount;
+    private int dislikeCount;
+    private Date time;
+    //private String courseName;
+    //private String tearchName;
 
 }

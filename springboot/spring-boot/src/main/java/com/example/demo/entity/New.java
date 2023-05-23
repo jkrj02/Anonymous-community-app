@@ -15,10 +15,17 @@ public class New{
 
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Id
-    @Column(name = "id")
-    private int id;
+    @Column(name = "newId")
+    private int newId;
+    private int userId;
+    private int type;
+    private String otherName;
+    private String content;
+    private int objectId;
+    private String subContent;
+    private boolean read;
 
-    private String courseName;
-    private String tearchName;
+    //private String courseName;
+    //private String tearchName;
 
 }
