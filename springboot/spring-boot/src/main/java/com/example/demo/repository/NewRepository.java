@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface NewRepository extends CrudRepository<New, Integer> {
     Iterable<New> findByUserId(int userId);
+
+    boolean existsByUserIdAndTypeAndOtherNameAndContentAndPostIdAndCourseId(int userId,int type,String otherName,String content,int postId,int courseId);
 }

@@ -21,6 +21,7 @@ public class Comment {
     private int commentId;
     private int postId;
     private int objectId;
+    private int userId;
     private String userName;
     private String content;
     private int commentCount;

@@ -26,6 +26,6 @@ public class myLike {
     private int commentId;
     @Column(name = "course_comment_id")
     private int courseCommentId;
-
+    private String info;
 
 }

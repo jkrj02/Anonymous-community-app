@@ -24,6 +24,18 @@ public class NewService {
     public Iterable<New> getByUserId(int id) {
         return repository.findByUserId(id);
     }
+    public void insert(New a) {
+        if(repository.existsByUserIdAndTypeAndOtherNameAndContentAndPostIdAndCourseId(a.getUserId(),a.getType(),a.getOtherName(),a.getContent(),a.getPostId(),a.getCourseId()))//存在类似的新消息就不添加新消息了
+        {
+            //防止多次发消息
+        }
+        else
+        {
+
+             repository.save(a);
+        }
+
+    }
     public boolean update(New a) {
         repository.save(a);
         return true;

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.New;
 import com.example.demo.entity.User;
 import com.example.demo.entity.myLike;
 import com.example.demo.repository.LikeRepository;
@@ -15,6 +16,9 @@ public class LikeService {
 
     public Iterable<myLike> getAll() {
         return repository.findAll();
+    }
+    public  Iterable<myLike> getMyLike(int id){
+        return repository.findByUserId(id);
     }
     public myLike insert(myLike a) {
         return repository.save(a);

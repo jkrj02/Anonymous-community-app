@@ -57,29 +57,41 @@ public class Controller {
         }
     }
     @PutMapping("user/update")//用户更新
-    public ResponseMyBody update(@RequestBody User user) {
-        return new ResponseMyBody(service.update(user) ? ResponseCode.User_Update_Success : ResponseCode.User_Update_Failed, "");
+    public boolean update(@RequestBody User user) {
+        return service.update(user) ? true : false;
     }
 
     @DeleteMapping("user/delete")//用户删除
-    public ResponseMyBody deleteByName(@RequestParam int id) {
-        return new ResponseMyBody(service.deleteById(id) ? ResponseCode.User_Delete_Success : ResponseCode.User_Delete_Failed, "");
+    public boolean deleteByName(@RequestParam int id) {
+        return service.deleteById(id) ? true : false;
     }
 
     @PostMapping("course/add")//添加课程
-    public ResponseMyBody addCourse(@RequestBody Course tt) {
+    public int addCourse(@RequestBody Course tt) {
         if (courseService.exists(tt)) {
-            return new ResponseMyBody(  ResponseCode.Course_Create_Failed,  "");
+            return  ResponseCode.Course_Create_Failed;
         }
-        return new ResponseMyBody(courseService.insert(tt)!=null ? ResponseCode.Course_Create_Success : ResponseCode.Course_Create_Failed, "");
+        return courseService.insert(tt)!=null ? ResponseCode.Course_Create_Success : ResponseCode.Course_Create_Failed;
     }
     @GetMapping("course/get")
     public Object getCourse() {
         return courseService.getAllCourse();
     }
-    @GetMapping("course/search")
-    public Object searchCourse() {
-        //模糊搜索，等待实现
+    @GetMapping("course/search/{keyword}")
+    public Object searchCourse(@PathVariable String keyword) {
+        String sql = "SELECT * FROM course where course_name like '%";
+        sql += keyword;
+        sql += "%' or teacher_name like '%";
+        sql += keyword;
+        sql += "%'";
+        Query query = entityManager.createNativeQuery(sql, Course.class);//指定返回类型
+        List<Course> courses = query.getResultList();
+        return courses;
+    }
+
+    @GetMapping("course/main")
+    public Object CourseMain() {
+        //等待实现 
         return courseService.getAllCourse();
     }
 
@@ -93,10 +105,21 @@ public class Controller {
         return postService.getAll();
     }
 
-    @GetMapping("post/search")
-    public Object searchPost() {
-        //模糊搜索，等待实现
-        return postService.getAll();
+    @GetMapping("post/search/{keyword}")
+    public Object searchPost(@PathVariable String keyword) {
+       String sql = "SELECT * FROM post INNER JOIN comment ON post.post_id = comment.post_id " +
+                "where post.user_name like '%";
+        sql += keyword;
+        sql += "%' or post.content like '%";
+        sql += keyword;
+        sql += "%' or comment.user_name like '%";
+        sql += keyword;
+        sql += "%' or comment.content like '%";
+        sql += keyword;
+        sql += "%'";
+        Query query = entityManager.createNativeQuery(sql, Post.class);//指定返回类型
+        List<Post> posts = query.getResultList();
+        return posts;
     }
 
     @PostMapping("post/create")
@@ -110,6 +133,12 @@ public class Controller {
         //等待实现 删除有许多关联操作，比如新消息回复，这些该怎么处理
         return postService.getAll();
     }
+    @GetMapping("post/main")
+    public Object postMain() {
+        //等待实现
+        return postService.getAll();
+    }
+
 
     @PostMapping("comment/add")
     public Object addComment(){
@@ -134,14 +163,38 @@ public class Controller {
         //等待实现
         return postService.getAll();
     }
-    @PostMapping("like/add")
+
+    @PostMapping("like/add")//点赞
     public Object addLike(@RequestBody myLike a) {
+        New new_t=new New();
+        new_t.setNewId(0);
+        new_t.setRead(false);
+        new_t.setType(0);
+        new_t.setOtherName(service.getNameById(a.getUserId()));
+        new_t.setContent(a.getInfo());
+        new_t.setSubContent(null);
+        if (a.getPostId()!=0) {//点赞帖子
+            new_t.setUserId(postService.getUserIDById(a.getPostId()));
+            new_t.setCourseId(0);
+            new_t.setPostId(a.getPostId());
+        }
+        else if(a.getCourseCommentId()!=0)//点赞课程评价
+        {
+            new_t.setUserId(courseCommentService.getUserIDById(a.getCourseCommentId()));
+            new_t.setCourseId(a.getCourseCommentId());
+            new_t.setPostId(0);
+        }else//点赞评论
+        {
+            new_t.setUserId(commentService.getUserIDById(a.getCommentId()));
+            new_t.setCourseId(0);
+            new_t.setPostId(commentService.getPostIDById(a.getCommentId()));
+        }
+        newService.insert(new_t);
         return likeService.insert(a);
     }
     @GetMapping("like/my")
-    public Object getMyLike() {
-        //@RequestParam int id
-        return postService.getAll();
+    public Object getMyLike(@RequestParam int id) {
+        return likeService.getMyLike(id);
     }
     @DeleteMapping("like/delete")
     public Object deleteLike(@RequestBody myLike a) {
@@ -227,24 +280,57 @@ public class Controller {
         return totalBytes;
     }
 
-
+    @RequestMapping(value = "/image/get2/{id}/{imgUrl:[a-zA-Z0-9_.]+}", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @ResponseBody
+    public byte[] getPhoto2(@PathVariable("id") String id,@PathVariable("imgUrl") String imgUrl) throws IOException {
+        File file =  new File("/root/data/" + id+"/"+imgUrl);
+        if (file!=null)
+        {
+        FileInputStream inputStream = new FileInputStream(file);
+        byte[] bytes = new byte[inputStream.available()];
+        inputStream.read(bytes, 0, inputStream.available());
+        return bytes;
+        }
+        return null;
+    }
     @GetMapping("test")
     public String test() {
         return "test";
     }
+    @GetMapping("test1")
+    public  Object test111(){
+        return newService.getAll();
+    }
 
     @GetMapping("test/test")
     public Object test1() {
-        myLike a=new myLike();
+        New new_t=new New();
+        new_t.setNewId(0);
+        new_t.setRead(false);
+        new_t.setType(0);
+        new_t.setOtherName(service.getNameById(520));
+        new_t.setContent("hhhh");
+        new_t.setSubContent(null);
+            new_t.setUserId(postService.getUserIDById(1));
+            new_t.setCourseId(0);
+            new_t.setPostId(1);
 
-        a.setUserId(10086);
-        a.setCommentId(888);
 
-        return likeService.delete(a);
+        newService.insert(new_t);
+        return new_t;
     }
     @GetMapping("test/test1")
     public Object test11() {
-        return commentService.getAll();
+        myLike a= new myLike();
+        a.setPostId(1);
+        a.setLikeId(0);
+        a.setUserId(520);
+        a.setInfo("太酷了");
+        a.setCourseCommentId(0);
+        a.setCommentId(0);
+        addLike(a);
+        return "test add like and new";
+        //return commentService.getAll();
     }
 
     @GetMapping("test2/{id}/{orderId}")//访问test2/123/456

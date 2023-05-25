@@ -21,9 +21,10 @@ public class New{
     private int type;
     private String otherName;
     private String content;
-    private int objectId;
+    private int postId;
+    private int courseId;
     private String subContent;
-    private boolean read;
+    private boolean isRead;
 
     //private String courseName;
     //private String tearchName;
