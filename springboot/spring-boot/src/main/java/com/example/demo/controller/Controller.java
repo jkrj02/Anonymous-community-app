@@ -93,52 +93,91 @@ public class Controller {
         return courses;
     }
 
-    @GetMapping("course/main/{postId}/{userId}")
-    public Object CourseMain(@PathVariable int postId, @PathVariable int userId) {
-
-        String sql = "SELECT * FROM courseComment INNER JOIN course ON course.course_id = courseComment.post_id " +
+    @GetMapping("post/main/{postId}/{userId}")
+    public Object postMain(@PathVariable int postId, @PathVariable int userId) {
+        //等待实现
+        String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
-        Query query = entityManager.createNativeQuery(sql, CourseComment.class);//指定返回类型
-        List<CourseComment> comments = query.getResultList();
+        Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
+        List<Comment> comments = query.getResultList();
         //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
+
         class returncomment
         {
-            public CourseComment thiscomment;
+            public Comment thiscomment;
             public boolean islike;
             public boolean dislike;
         }
-        List<returncomment> returncomments = new ArrayList<>();
-        for(CourseComment temp :  comments)
+        class finalreturncomment
         {
-            returncomment temp2 = new returncomment();
-            temp2.thiscomment = temp;
-
-            int commentId = temp.getCommentId();
-            String sql2 = "SELECT * FROM my_like where courseComment_id = ";
-            sql2 +=  String.valueOf(commentId);
-            sql2 += " and user_id = ";
-            sql2 +=  String.valueOf(userId);
-            Query query2 = entityManager.createNativeQuery(sql2, myLike.class);//指定返回类型
-            List<myLike> myLikes = query2.getResultList();
-            if(myLikes.isEmpty())
-                temp2.islike = false;
-            else
-                temp2.islike = true;
-
-            String sql3 = "SELECT * FROM dislike where courseComment_id = ";
-            sql3 +=  String.valueOf(commentId);
-            sql3 += " and user_id = ";
-            sql3 +=  String.valueOf(userId);
-            Query query3 = entityManager.createNativeQuery(sql3, Dislike.class);//指定返回类型
-            List<myLike> Dislikes = query3.getResultList();
-            if(Dislikes.isEmpty())
-                temp2.dislike = false;
-            else
-                temp2.dislike= true;
-            returncomments.add(temp2);
+            public Post thispost;
+            public boolean postislike;
+            public boolean postdislike;
+            public List<returncomment> recomments = new ArrayList<returncomment>();
         }
-        return returncomments;
+        finalreturncomment fretinfo = new finalreturncomment();
+
+        String sql4 = "SELECT * FROM post where post_id = ";
+        sql4 += String.valueOf(postId);
+        Query query4 = entityManager.createNativeQuery(sql4, Post.class);//指定返回类型
+        List<Post> posts = query4.getResultList();
+
+        fretinfo.thispost = posts.get(0);
+
+        String sql5 = "SELECT * FROM my_like where post_id = ";
+        sql5 +=  String.valueOf(postId);
+        sql5 += " and user_id = ";
+        sql5 +=  String.valueOf(userId);
+        Query query5 = entityManager.createNativeQuery(sql5, myLike.class);//指定返回类型
+        List<myLike> postmyLikes = query5.getResultList();
+        if(postmyLikes.isEmpty())
+            fretinfo.postislike = false;
+        else
+            fretinfo.postislike = true;
+
+        String sql6 = "SELECT * FROM dislike where post_id = ";
+        sql6 +=  String.valueOf(postId);
+        sql6 += " and user_id = ";
+        sql6 +=  String.valueOf(userId);
+        Query query6 = entityManager.createNativeQuery(sql6, Dislike.class);//指定返回类型
+        List<Dislike> postDislikes = query6.getResultList();
+        if(postDislikes.isEmpty())
+            fretinfo.postdislike = false;
+        else
+            fretinfo.postdislike = true;
+        //List<returncomment> returncomments = new ArrayList<>();
+       for(Comment temp :  comments)
+       {
+           returncomment temp2 = new returncomment();
+           temp2.thiscomment = temp;
+
+           int commentId = temp.getCommentId();
+           String sql2 = "SELECT * FROM my_like where comment_id = ";
+           sql2 +=  String.valueOf(commentId);
+           sql2 += " and user_id = ";
+           sql2 +=  String.valueOf(userId);
+           Query query2 = entityManager.createNativeQuery(sql2, myLike.class);//指定返回类型
+           List<myLike> myLikes = query2.getResultList();
+           if(myLikes.isEmpty())
+               temp2.islike = false;
+           else
+               temp2.islike = true;
+
+           String sql3 = "SELECT * FROM dislike where comment_id = ";
+           sql3 +=  String.valueOf(commentId);
+           sql3 += " and user_id = ";
+           sql3 +=  String.valueOf(userId);
+           Query query3 = entityManager.createNativeQuery(sql3, Dislike.class);//指定返回类型
+           List<Dislike> Dislikes = query3.getResultList();
+           if(Dislikes.isEmpty())
+               temp2.dislike = false;
+           else
+               temp2.dislike= true;
+           fretinfo.recomments.add(temp2);
+           //.add(temp2);
+       }
+        return fretinfo;
     }
 
     @GetMapping("post/get")
@@ -233,27 +272,31 @@ public class Controller {
 
 
     @PostMapping("comment/add")
-    public Object addComment(){
-        return postService.getAll();
+    public Object addComment(@RequestBody Comment a){
+        return commentService.insert(a);
     }
     @DeleteMapping("comment/delete")
-    public Object deleteComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteComment(@RequestParam int commentid) {
+        return commentService.deleteById(commentid);
     }
     @GetMapping("comment/my")
-    public Object getMyComment() {
-        //@RequestParam int id 获取课程评论和帖子评论
-        return postService.getAll();
+    public Object getMyComment(@RequestParam int id) {
+        String sql="select * from comment where user_id=";
+        sql += String.valueOf(id);
+        Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
+        List<Comment> comments = query.getResultList();
+        sql = "select * from course_comment where user_id = " + String.valueOf(id);
+        query = entityManager.createNativeQuery(sql,CourseComment.class);
+        comments.addAll(query.getResultList());
+        return comments;
     }
     @PostMapping("courseComment/add")
-    public Object addCComment(){
-        return postService.getAll();
+    public Object addCComment(@RequestBody CourseComment a){
+        return courseCommentService.insert(a);
     }
     @DeleteMapping("courseComment/delete")
-    public Object deleteCComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteCComment(@RequestParam int courseCommentid) {
+        return courseCommentService.deleteById(courseCommentid);
     }
 
     @PostMapping("like/add")//点赞
