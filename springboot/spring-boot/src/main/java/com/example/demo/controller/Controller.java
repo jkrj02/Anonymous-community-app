@@ -62,7 +62,8 @@ public class Controller {
     }
 
     @DeleteMapping("user/delete")//用户删除
-    public boolean deleteByName(@RequestParam int id) {
+    public boolean deleteById(@RequestParam int id) {
+
         return service.deleteById(id) ? true : false;
     }
 
@@ -339,9 +340,9 @@ public class Controller {
         return  id.toString()+orderId.toString();
     }
     @GetMapping("test3")// 访问test3?id=123可以查看效果
-    public Object test3(@RequestParam Long id) {
+    public Object test3(@RequestParam int id) {
     //这个是query参数
-        return id.toString();
+        return deleteById(id);
     }
 
     @GetMapping("test4")//复杂逻辑要用sql,不能自动生成
