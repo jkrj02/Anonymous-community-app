@@ -297,7 +297,7 @@ public class Controller {
         String SQL = "delete from my_like where comment_id = "+String.valueOf(commentid);
         entityManager.createNativeQuery(SQL).executeUpdate();
 
-        String sql = "update comment set user_id = 0 where comment_id="+String.valueOf(commentid);
+        String sql = "update comment set valid = 0 where comment_id="+String.valueOf(commentid);
         Query query=entityManager.createNativeQuery(sql);
         return query.executeUpdate();
     }
@@ -334,7 +334,7 @@ public class Controller {
         String SQL = "delete from my_like where course_comment_id = "+String.valueOf(courseCommentid);
         entityManager.createNativeQuery(SQL).executeUpdate();
 
-        String sql = "update course_comment set user_id = 0 where comment_id="+String.valueOf(courseCommentid);
+        String sql = "update course_comment set valid = 0 where comment_id="+String.valueOf(courseCommentid);
         Query query=entityManager.createNativeQuery(sql);
         return query.executeUpdate();
     }
