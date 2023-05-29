@@ -1,12 +1,15 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Course;
+import com.example.demo.entity.Post;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
 
 
 //中间类
@@ -28,5 +31,9 @@ public class CourseService {
         return repository.findAll();
     }
 
+    public String getNameById(int id){
+        Optional<Course> tt=repository.findById(id);
+        return tt.get().getCourseName();
+    }
 
 }
