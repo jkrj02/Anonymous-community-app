@@ -12,12 +12,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,6 +30,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //主程序
 @RestController
@@ -310,8 +313,8 @@ public class Controller {
         return newService.getByUserId(id);
     }
 
-    @PostMapping("image/upload")
-    public String handleFileUpload(@RequestParam("file") List<MultipartFile> files,@RequestParam("id") Long id) {
+    @PostMapping("image/post/upload")
+    public String imageUpload1(@RequestParam("file") List<MultipartFile> files,@RequestParam("id")int id) {
         if (files.isEmpty()) {
             // 文件列表为空，返回错误提示
             return "No files uploaded";
@@ -329,7 +332,7 @@ public class Controller {
                 // 生成新的文件名
                 String newFilename = i + fileExtension;
                 // 保存文件到本地文件系统
-                Path filePath = Paths.get("/root/data/"+id.toString()+"/", newFilename);
+                Path filePath = Paths.get("/root/data/post/"+id+"/", newFilename);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 // 处理异常，返回错误提示
@@ -340,11 +343,35 @@ public class Controller {
         // 返回成功提示
         return "Files successfully uploaded";
     }
+    @PostMapping("/image/user/upload")
+    public String imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
+
+        try {
+            // 获取文件名和扩展名
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = "";
+            int lastIndex = originalFilename.lastIndexOf(".");
+            if (lastIndex > 0) {
+                fileExtension = originalFilename.substring(lastIndex);
+            }
+            // 生成新的文件名
+            String newFilename =1 + fileExtension;
+            // 保存文件到本地文件系统
+            Path filePath = Paths.get("/root/data/user/" + id + "/" + newFilename);
+            Files.createDirectories(filePath.getParent());
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            // 处理异常，返回错误提示
+            return "Failed to upload file: " + e.getMessage();
+        }
+        // 返回成功提示
+        return "File successfully uploaded";
+    }
 
     @RequestMapping(value = "image/get", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
     public byte[] getPhotos(@RequestParam("id") Long id) throws IOException {
-        File directory = new File("/root/data/" + id);
+        File directory = new File("/root/data/user/" + id);
         if (!directory.isDirectory()) {
             throw new FileNotFoundException(Integer.toString(ResponseCode.No_Image));
         }
@@ -373,7 +400,7 @@ public class Controller {
     @RequestMapping(value = "/image/get2/{id}/{imgUrl:[a-zA-Z0-9_.]+}", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
     public byte[] getPhoto2(@PathVariable("id") String id,@PathVariable("imgUrl") String imgUrl) throws IOException {
-        File file =  new File("/root/data/" + id+"/"+imgUrl);
+        File file =  new File("/root/data/user/" + id+"/"+imgUrl);
         if (file!=null)
         {
         FileInputStream inputStream = new FileInputStream(file);
@@ -422,6 +449,21 @@ public class Controller {
         return "test add like and new";
         //return commentService.getAll();
     }
+
+    @GetMapping("/test/test2")//测试上传图片
+    public String test12() {
+        try {
+            Path imagePath = Paths.get("D:/Desktop/2.jpg");
+            byte[] imageData = Files.readAllBytes(imagePath);
+            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
+            imageUpload2(file, 10);
+            return "Test upload image";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to upload image: " + e.getMessage();
+        }
+    }
+
 
     @GetMapping("test2/{id}/{orderId}")//访问test2/123/456
     public Object test2(@PathVariable Long id, @PathVariable Long orderId) {
