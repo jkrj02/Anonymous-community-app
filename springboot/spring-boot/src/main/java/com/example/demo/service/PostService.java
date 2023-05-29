@@ -40,6 +40,10 @@ public class PostService {
         repository.deleteById(id);
         return true;
     }
+    public String getPostContentById(int id){
+        Optional<Post> tt=repository.findById(id);
+        return tt.get().getContent();
+    }
 }
 
 
