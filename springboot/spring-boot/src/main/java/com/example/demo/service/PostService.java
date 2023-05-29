@@ -31,6 +31,12 @@ public class PostService {
     public Post insert(Post a) {
         return repository.save(a);
     }
+    public boolean deleteById(int id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+        repository.deleteById(id);
+        return true;
 }
 
 
