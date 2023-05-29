@@ -21,6 +21,10 @@ public class CourseCommentService {
     public Iterable<CourseComment> getAll() {
             return repository.findAll();
     }
+    public Iterable<CourseComment> findByCourseId(int courseId) {
+        return repository.findByCourseId(courseId);
+    }
+
     public int getUserIDById(int id)
     {
         Optional<CourseComment> tt=repository.findById(id);
