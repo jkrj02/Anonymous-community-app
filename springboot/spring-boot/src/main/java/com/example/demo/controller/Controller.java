@@ -272,11 +272,34 @@ public class Controller {
 
     @PostMapping("comment/add")
     public Object addComment(@RequestBody Comment a){
+        New new_t=new New();
+        new_t.setRead(false);
+        new_t.setType(1);
+        new_t.setOtherName(a.getUserName());
+        new_t.setOtherId(a.getUserId());
+        new_t.setContent(a.getContent());
+        new_t.setPostId(a.getPostId());
+        new_t.setSubContent(postService.getPostContentById(a.getPostId()));
+        if (a.getObjectId()==0){
+            new_t.setUserId(postService.getUserIDById(a.getUserId()));
+        } else{
+            new_t.setUserId(commentService.getUserIDById(a.getObjectId()));
+        }
+        new_t.setCourseId(0);
+
+        newService.insert(new_t);
         return commentService.insert(a);
     }
+
+    @Transactional
     @DeleteMapping("comment/delete")
     public Object deleteComment(@RequestParam int commentid) {
-        return commentService.deleteById(commentid);
+        String SQL = "delete from my_like where comment_id = "+String.valueOf(commentid);
+        entityManager.createNativeQuery(SQL).executeUpdate();
+
+        String sql = "update comment set post_id = 0 where comment_id="+String.valueOf(commentid);
+        Query query=entityManager.createNativeQuery(sql);
+        return query.executeUpdate();
     }
     @GetMapping("comment/my")
     public Object getMyComment(@RequestParam int id) {
@@ -291,11 +314,29 @@ public class Controller {
     }
     @PostMapping("courseComment/add")
     public Object addCComment(@RequestBody CourseComment a){
+        New new_t=new New();
+        new_t.setRead(false);
+        new_t.setType(1);
+        new_t.setOtherName(a.getUserName());
+        new_t.setOtherId(a.getUserId());
+        new_t.setContent(a.getContent());
+        new_t.setSubContent(courseService.getNameById(a.getCourseId()));
+        new_t.setCourseId(a.getCourseId());
+        new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
+        new_t.setPostId(0);
+
+        newService.insert(new_t);
         return courseCommentService.insert(a);
     }
+    @Transactional
     @DeleteMapping("courseComment/delete")
     public Object deleteCComment(@RequestParam int courseCommentid) {
-        return courseCommentService.deleteById(courseCommentid);
+        String SQL = "delete from my_like where course_comment_id = "+String.valueOf(courseCommentid);
+        entityManager.createNativeQuery(SQL).executeUpdate();
+
+        String sql = "update course_comment set course_id = 0 where comment_id="+String.valueOf(courseCommentid);
+        Query query=entityManager.createNativeQuery(sql);
+        return query.executeUpdate();
     }
 
     @PostMapping("like/add")//点赞
