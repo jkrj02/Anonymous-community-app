@@ -90,10 +90,52 @@ public class Controller {
         return courses;
     }
 
-    @GetMapping("course/main")
-    public Object CourseMain() {
-        //等待实现 
-        return courseService.getAllCourse();
+    @GetMapping("course/main/{postId}/{userId}")
+    public Object CourseMain(@PathVariable int postId, @PathVariable int userId) {
+
+        String sql = "SELECT * FROM courseComment INNER JOIN course ON course.course_id = courseComment.post_id " +
+                "where post.post_id = ";
+        sql += String.valueOf(postId);
+        Query query = entityManager.createNativeQuery(sql, CourseComment.class);//指定返回类型
+        List<CourseComment> comments = query.getResultList();
+        //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
+        class returncomment
+        {
+            public CourseComment thiscomment;
+            public boolean islike;
+            public boolean dislike;
+        }
+        List<returncomment> returncomments = new ArrayList<>();
+        for(CourseComment temp :  comments)
+        {
+            returncomment temp2 = new returncomment();
+            temp2.thiscomment = temp;
+
+            int commentId = temp.getCommentId();
+            String sql2 = "SELECT * FROM my_like where courseComment_id = ";
+            sql2 +=  String.valueOf(commentId);
+            sql2 += " and user_id = ";
+            sql2 +=  String.valueOf(userId);
+            Query query2 = entityManager.createNativeQuery(sql2, myLike.class);//指定返回类型
+            List<myLike> myLikes = query2.getResultList();
+            if(myLikes.isEmpty())
+                temp2.islike = false;
+            else
+                temp2.islike = true;
+
+            String sql3 = "SELECT * FROM dislike where courseComment_id = ";
+            sql3 +=  String.valueOf(commentId);
+            sql3 += " and user_id = ";
+            sql3 +=  String.valueOf(userId);
+            Query query3 = entityManager.createNativeQuery(sql3, Dislike.class);//指定返回类型
+            List<myLike> Dislikes = query3.getResultList();
+            if(Dislikes.isEmpty())
+                temp2.dislike = false;
+            else
+                temp2.dislike= true;
+            returncomments.add(temp2);
+        }
+        return returncomments;
     }
 
     @GetMapping("post/get")
@@ -140,7 +182,7 @@ public class Controller {
     
     @GetMapping("post/main/{postId}/{userId}")
     public Object postMain(@PathVariable int postId, @PathVariable int userId) {
-        //等待实现
+
         String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
@@ -218,6 +260,7 @@ public class Controller {
         new_t.setRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(a.getUserId()));
+        new_t.setOtherId(a.getUserId());
         new_t.setContent(a.getInfo());
         new_t.setSubContent(null);
         if (a.getPostId()!=0) {//点赞帖子
@@ -241,7 +284,7 @@ public class Controller {
     }
     @GetMapping("like/my")
     public Object getMyLike(@RequestParam int id) {
-        return likeService.getMyLike(id);
+        return newService.getByOtherId(id,0);
     }
     @DeleteMapping("like/delete")
     public Object deleteLike(@RequestBody myLike a) {

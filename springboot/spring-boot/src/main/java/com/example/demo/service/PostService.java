@@ -19,24 +19,27 @@ public class PostService {
 
 
     private final PostRepository repository;
-    public int getUserIDById(int id)
-    {
-        Optional<Post>  tt=repository.findById(id);
+
+    public int getUserIDById(int id) {
+        Optional<Post> tt = repository.findById(id);
         return tt.get().getUserId();
     }
 
     public Iterable<Post> getAll() {
         return repository.findAll();
     }
+
     public Post insert(Post a) {
         return repository.save(a);
     }
+
     public boolean deleteById(int id) {
         if (!repository.existsById(id)) {
             return false;
         }
         repository.deleteById(id);
         return true;
+    }
 }
 
 
