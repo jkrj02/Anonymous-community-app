@@ -370,7 +370,12 @@ public class Controller {
             try {
                 // 获取文件名和扩展名
                 String originalFilename = file.getOriginalFilename();
-                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String fileExtension = "";
+                int lastIndex = originalFilename.lastIndexOf(".");
+                if (lastIndex > 0) {
+                    fileExtension = originalFilename.substring(lastIndex);
+                }
+
                 // 生成新的文件名
                 String newFilename = i + fileExtension;
                 // 保存文件到本地文件系统
