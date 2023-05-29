@@ -30,5 +30,14 @@ public class CommentService {
         Optional<Comment> tt=repository.findById(id);
         return tt.get().getPostId();
     }
-
+    public Comment insert(Comment a) {
+        return repository.save(a);
+    }
+    public boolean deleteById(int id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+        repository.deleteById(id);
+        return true;
+    }
 }
