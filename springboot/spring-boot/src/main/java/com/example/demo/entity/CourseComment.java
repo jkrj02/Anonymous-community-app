@@ -22,6 +22,7 @@ public class CourseComment {
     private int courseId;
     private int objectId;
     private int userId;
+    private  String othername;
     private String userName;
     private String content;
     private int commentCount;
