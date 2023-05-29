@@ -230,27 +230,31 @@ public class Controller {
 
 
     @PostMapping("comment/add")
-    public Object addComment(){
-        return postService.getAll();
+    public Object addComment(@RequestBody Comment a){
+        return commentService.insert(a);
     }
     @DeleteMapping("comment/delete")
-    public Object deleteComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteComment(@RequestParam int commentid) {
+        return commentService.deleteById(commentid);
     }
     @GetMapping("comment/my")
-    public Object getMyComment() {
-        //@RequestParam int id 获取课程评论和帖子评论
-        return postService.getAll();
+    public Object getMyComment(@RequestParam int id) {
+        String sql="select * from comment where user_id=";
+        sql += String.valueOf(id);
+        Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
+        List<Comment> comments = query.getResultList();
+        sql = "select * from course_comment where user_id = " + String.valueOf(id);
+        query = entityManager.createNativeQuery(sql,CourseComment.class);
+        comments.addAll(query.getResultList());
+        return comments;
     }
     @PostMapping("courseComment/add")
-    public Object addCComment(){
-        return postService.getAll();
+    public Object addCComment(@RequestBody CourseComment a){
+        return courseCommentService.insert(a);
     }
     @DeleteMapping("courseComment/delete")
-    public Object deleteCComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteCComment(@RequestParam int courseCommentid) {
+        return courseCommentService.deleteById(courseCommentid);
     }
 
     @PostMapping("like/add")//点赞
