@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 
+import com.example.demo.entity.Comment;
 import com.example.demo.entity.CourseComment;
 
 import com.example.demo.entity.Post;
@@ -20,11 +21,24 @@ public class CourseCommentService {
     public Iterable<CourseComment> getAll() {
             return repository.findAll();
     }
+    public Iterable<CourseComment> findByCourseId(int courseId) {
+        return repository.findByCourseId(courseId);
+    }
+
     public int getUserIDById(int id)
     {
         Optional<CourseComment> tt=repository.findById(id);
         return tt.get().getUserId();
     }
-
+    public CourseComment insert(CourseComment a) {
+        return repository.save(a);
+    }
+    public boolean deleteById(int id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+        repository.deleteById(id);
+        return true;
+    }
 
 }

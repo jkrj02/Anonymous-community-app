@@ -12,12 +12,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,6 +31,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 //主程序
 @RestController
@@ -62,7 +66,8 @@ public class Controller {
     }
 
     @DeleteMapping("user/delete")//用户删除
-    public boolean deleteByName(@RequestParam int id) {
+    public boolean deleteById(@RequestParam int id) {
+
         return service.deleteById(id) ? true : false;
     }
 
@@ -89,10 +94,52 @@ public class Controller {
         return courses;
     }
 
-    @GetMapping("course/main")
-    public Object CourseMain() {
-        //等待实现 
-        return courseService.getAllCourse();
+    @GetMapping("course/main/{courseId}/{userId}")
+    public Object courseMain(@PathVariable int courseId, @PathVariable int userId) {
+
+        Iterable<CourseComment> comments = courseCommentService.findByCourseId(courseId);
+
+        //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
+        class returncomment
+        {
+            public CourseComment thiscomment;
+            public boolean islike;
+            public boolean dislike;
+        }
+        Iterable<returncomment> a = new ArrayList<>();;
+
+       for(CourseComment temp :  comments)
+       {
+           returncomment temp2 = new returncomment();
+           temp2.thiscomment = temp;
+
+           int commentId = temp.getCommentId();
+           String sql2 = "SELECT * FROM my_like where course_comment_id = ";
+           sql2 +=  String.valueOf(commentId);
+           sql2 += " and user_id = ";
+           sql2 +=  String.valueOf(userId);
+           Query query2 = entityManager.createNativeQuery(sql2, myLike.class);//指定返回类型
+           List<myLike> aaa = query2.getResultList();
+
+           if(aaa.isEmpty())
+               temp2.islike = false;
+           else
+               temp2.islike = true;
+
+           String sql3 = "SELECT * FROM dislike where course_comment_id = ";
+           sql3 +=  String.valueOf(commentId);
+           sql3 += " and user_id = ";
+           sql3 +=  String.valueOf(userId);
+           Query query3 = entityManager.createNativeQuery(sql3, Dislike.class);//指定返回类型
+           List<Dislike> aaaa = query2.getResultList();
+
+           if(aaaa.isEmpty())
+               temp2.dislike = false;
+           else
+               temp2.dislike= true;
+            ((ArrayList<returncomment>) a).add(temp2);
+       }
+        return a;
     }
 
     @GetMapping("post/get")
@@ -139,20 +186,57 @@ public class Controller {
     
     @GetMapping("post/main/{postId}/{userId}")
     public Object postMain(@PathVariable int postId, @PathVariable int userId) {
-        //等待实现
-        String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
+ String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
         Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
         List<Comment> comments = query.getResultList();
         //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
+
         class returncomment
         {
             public Comment thiscomment;
             public boolean islike;
             public boolean dislike;
         }
-        List<returncomment> returncomments = new ArrayList<>();
+        class finalreturncomment
+        {
+            public Post thispost;
+            public boolean postislike;
+            public boolean postdislike;
+            public List<returncomment> recomments = new ArrayList<returncomment>();
+        }
+        finalreturncomment fretinfo = new finalreturncomment();
+
+        String sql4 = "SELECT * FROM post where post_id = ";
+        sql4 += String.valueOf(postId);
+        Query query4 = entityManager.createNativeQuery(sql4, Post.class);//指定返回类型
+        List<Post> posts = query4.getResultList();
+
+        fretinfo.thispost = posts.get(0);
+
+        String sql5 = "SELECT * FROM my_like where post_id = ";
+        sql5 +=  String.valueOf(postId);
+        sql5 += " and user_id = ";
+        sql5 +=  String.valueOf(userId);
+        Query query5 = entityManager.createNativeQuery(sql5, myLike.class);//指定返回类型
+        List<myLike> postmyLikes = query5.getResultList();
+        if(postmyLikes.isEmpty())
+            fretinfo.postislike = false;
+        else
+            fretinfo.postislike = true;
+
+        String sql6 = "SELECT * FROM dislike where post_id = ";
+        sql6 +=  String.valueOf(postId);
+        sql6 += " and user_id = ";
+        sql6 +=  String.valueOf(userId);
+        Query query6 = entityManager.createNativeQuery(sql6, Dislike.class);//指定返回类型
+        List<Dislike> postDislikes = query6.getResultList();
+        if(postDislikes.isEmpty())
+            fretinfo.postdislike = false;
+        else
+            fretinfo.postdislike = true;
+        //List<returncomment> returncomments = new ArrayList<>();
        for(Comment temp :  comments)
        {
            returncomment temp2 = new returncomment();
@@ -175,39 +259,85 @@ public class Controller {
            sql3 += " and user_id = ";
            sql3 +=  String.valueOf(userId);
            Query query3 = entityManager.createNativeQuery(sql3, Dislike.class);//指定返回类型
-           List<myLike> Dislikes = query3.getResultList();
+           List<Dislike> Dislikes = query3.getResultList();
            if(Dislikes.isEmpty())
                temp2.dislike = false;
            else
                temp2.dislike= true;
-           returncomments.add(temp2);
+           fretinfo.recomments.add(temp2);
+           //.add(temp2);
        }
-        return returncomments;
+        return fretinfo;
     }
 
 
     @PostMapping("comment/add")
-    public Object addComment(){
-        return postService.getAll();
+    public Object addComment(@RequestBody Comment a){
+        New new_t=new New();
+        new_t.setRead(false);
+        new_t.setType(1);
+        new_t.setOtherName(a.getUserName());
+        new_t.setOtherId(a.getUserId());
+        new_t.setContent(a.getContent());
+        new_t.setPostId(a.getPostId());
+        new_t.setSubContent(postService.getPostContentById(a.getPostId()));
+        if (a.getObjectId()==0){
+            new_t.setUserId(postService.getUserIDById(a.getUserId()));
+        } else{
+            new_t.setUserId(commentService.getUserIDById(a.getObjectId()));
+        }
+        new_t.setCourseId(0);
+
+        newService.insert(new_t);
+        return commentService.insert(a);
     }
+
+    @Transactional
     @DeleteMapping("comment/delete")
-    public Object deleteComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteComment(@RequestParam int commentid) {
+        String SQL = "delete from my_like where comment_id = "+String.valueOf(commentid);
+        entityManager.createNativeQuery(SQL).executeUpdate();
+
+        String sql = "update comment set valid = 0 where comment_id="+String.valueOf(commentid);
+        Query query=entityManager.createNativeQuery(sql);
+        return query.executeUpdate();
     }
     @GetMapping("comment/my")
-    public Object getMyComment() {
-        //@RequestParam int id 获取课程评论和帖子评论
-        return postService.getAll();
+    public Object getMyComment(@RequestParam int id) {
+        String sql="select * from comment where user_id=";
+        sql += String.valueOf(id);
+        Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
+        List<Comment> comments = query.getResultList();
+        sql = "select * from course_comment where user_id = " + String.valueOf(id);
+        query = entityManager.createNativeQuery(sql,CourseComment.class);
+        comments.addAll(query.getResultList());
+        return comments;
     }
     @PostMapping("courseComment/add")
-    public Object addCComment(){
-        return postService.getAll();
+    public Object addCComment(@RequestBody CourseComment a){
+        New new_t=new New();
+        new_t.setRead(false);
+        new_t.setType(1);
+        new_t.setOtherName(a.getUserName());
+        new_t.setOtherId(a.getUserId());
+        new_t.setContent(a.getContent());
+        new_t.setSubContent(courseService.getNameById(a.getCourseId()));
+        new_t.setCourseId(a.getCourseId());
+        new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
+        new_t.setPostId(0);
+
+        newService.insert(new_t);
+        return courseCommentService.insert(a);
     }
+    @Transactional
     @DeleteMapping("courseComment/delete")
-    public Object deleteCComment() {
-        //等待实现
-        return postService.getAll();
+    public Object deleteCComment(@RequestParam int courseCommentid) {
+        String SQL = "delete from my_like where course_comment_id = "+String.valueOf(courseCommentid);
+        entityManager.createNativeQuery(SQL).executeUpdate();
+
+        String sql = "update course_comment set valid = 0 where comment_id="+String.valueOf(courseCommentid);
+        Query query=entityManager.createNativeQuery(sql);
+        return query.executeUpdate();
     }
 
     @PostMapping("like/add")//点赞
@@ -217,6 +347,7 @@ public class Controller {
         new_t.setRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(a.getUserId()));
+        new_t.setOtherId(a.getUserId());
         new_t.setContent(a.getInfo());
         new_t.setSubContent(null);
         if (a.getPostId()!=0) {//点赞帖子
@@ -240,7 +371,7 @@ public class Controller {
     }
     @GetMapping("like/my")
     public Object getMyLike(@RequestParam int id) {
-        return likeService.getMyLike(id);
+        return newService.getByOtherId(id,0);
     }
     @DeleteMapping("like/delete")
     public Object deleteLike(@RequestBody myLike a) {
@@ -266,8 +397,8 @@ public class Controller {
         return newService.getByUserId(id);
     }
 
-    @PostMapping("image/upload")
-    public String handleFileUpload(@RequestParam("file") List<MultipartFile> files,@RequestParam("id") Long id) {
+    @PostMapping("image/post/upload")
+    public String imageUpload1(@RequestParam("file") List<MultipartFile> files,@RequestParam("id")int id) {
         if (files.isEmpty()) {
             // 文件列表为空，返回错误提示
             return "No files uploaded";
@@ -281,11 +412,16 @@ public class Controller {
             try {
                 // 获取文件名和扩展名
                 String originalFilename = file.getOriginalFilename();
-                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String fileExtension = "";
+                int lastIndex = originalFilename.lastIndexOf(".");
+                if (lastIndex > 0) {
+                    fileExtension = originalFilename.substring(lastIndex);
+                }
+
                 // 生成新的文件名
                 String newFilename = i + fileExtension;
                 // 保存文件到本地文件系统
-                Path filePath = Paths.get("/root/data/"+id.toString()+"/", newFilename);
+                Path filePath = Paths.get("/root/data/post/"+id+"/", newFilename);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 // 处理异常，返回错误提示
@@ -296,11 +432,35 @@ public class Controller {
         // 返回成功提示
         return "Files successfully uploaded";
     }
+    @PostMapping("/image/user/upload")
+    public String imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
+
+        try {
+            // 获取文件名和扩展名
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = "";
+            int lastIndex = originalFilename.lastIndexOf(".");
+            if (lastIndex > 0) {
+                fileExtension = originalFilename.substring(lastIndex);
+            }
+            // 生成新的文件名
+            String newFilename =1 + fileExtension;
+            // 保存文件到本地文件系统
+            Path filePath = Paths.get("/root/data/user/" + id + "/" + newFilename);
+            Files.createDirectories(filePath.getParent());
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            // 处理异常，返回错误提示
+            return "Failed to upload file: " + e.getMessage();
+        }
+        // 返回成功提示
+        return "File successfully uploaded";
+    }
 
     @RequestMapping(value = "image/get", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
     public byte[] getPhotos(@RequestParam("id") Long id) throws IOException {
-        File directory = new File("/root/data/" + id);
+        File directory = new File("/root/data/user/" + id);
         if (!directory.isDirectory()) {
             throw new FileNotFoundException(Integer.toString(ResponseCode.No_Image));
         }
@@ -329,7 +489,7 @@ public class Controller {
     @RequestMapping(value = "/image/get2/{id}/{imgUrl:[a-zA-Z0-9_.]+}", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
     public byte[] getPhoto2(@PathVariable("id") String id,@PathVariable("imgUrl") String imgUrl) throws IOException {
-        File file =  new File("/root/data/" + id+"/"+imgUrl);
+        File file =  new File("/root/data/user/" + id+"/"+imgUrl);
         if (file!=null)
         {
         FileInputStream inputStream = new FileInputStream(file);
@@ -379,15 +539,30 @@ public class Controller {
         //return commentService.getAll();
     }
 
+    @GetMapping("/test/test2")//测试上传图片
+    public String test12() {
+        try {
+            Path imagePath = Paths.get("D:/Desktop/2.jpg");
+            byte[] imageData = Files.readAllBytes(imagePath);
+            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
+            imageUpload2(file, 10);
+            return "Test upload image";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to upload image: " + e.getMessage();
+        }
+    }
+
+
     @GetMapping("test2/{id}/{orderId}")//访问test2/123/456
     public Object test2(@PathVariable Long id, @PathVariable Long orderId) {
        //这个是 path参数读取方法
         return  id.toString()+orderId.toString();
     }
     @GetMapping("test3")// 访问test3?id=123可以查看效果
-    public Object test3(@RequestParam Long id) {
+    public Object test3(@RequestParam int id) {
     //这个是query参数
-        return id.toString();
+        return deleteById(id);
     }
 
     @GetMapping("test4")//复杂逻辑要用sql,不能自动生成
