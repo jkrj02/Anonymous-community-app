@@ -7,7 +7,7 @@
         android:title="@string/title_post" />
 
     <item
-        android:id="@+id/navigation_courese"
+        android:id="@+id/navigation_course"
         android:icon="@drawable/course"
         android:title="@string/title_course" />
 
