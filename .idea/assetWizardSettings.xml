@@ -16,11 +16,25 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="clipartAsset">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="url" value="file:/E:/Envs/Android_sdk/icons/material/materialicons/female/baseline_female_24.xml" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="post_add" />
-                            <entry key="sourceFile" value="F:\Downloads\icon\plus.svg" />
+                            <entry key="outputName" value="female" />
+                            <entry key="sourceFile" value="F:\Downloads\icon\edit.svg" />
                           </map>
                         </option>
                       </PersistentState>

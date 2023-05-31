@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_bottom"
+    app:startDestination="@id/navigation_post">
+
+    <fragment
+        android:id="@+id/navigation_post"
+        android:name="com.example.anonymous_community_app.ui.post.PostFragment"
+        android:label="@string/title_post"
+        tools:layout="@layout/fragment_post" />
+    <fragment
+        android:id="@+id/navigation_course"
+        android:name="com.example.anonymous_community_app.ui.course.CourseFragment"
+        android:label="@string/title_course"
+        tools:layout="@layout/fragment_course" />
+    <fragment
+        android:id="@+id/navigation_message"
+        android:name="com.example.anonymous_community_app.ui.message.MessageFragment"
+        android:label="@string/title_message"
+        tools:layout="@layout/fragment_message" />
+    <fragment
+        android:id="@+id/navigation_me"
+        android:name="com.example.anonymous_community_app.ui.me.MeFragment"
+        android:label="@string/title_me"
+        tools:layout="@layout/fragment_me" />
+    <fragment
+        android:id="@+id/navigation_me_login"
+        android:name="com.example.anonymous_community_app.ui.me.MeLoginFragment"
+        android:label="@string/title_me"
+        tools:layout="@layout/fragment_me_login" />
+</navigation>
