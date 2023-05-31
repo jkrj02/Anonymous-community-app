@@ -6,27 +6,32 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import com.example.anonymous_community_app.R
+import com.example.anonymous_community_app.databinding.FragmentMeBinding
+import com.example.anonymous_community_app.databinding.FragmentPostBinding
+import com.example.anonymous_community_app.ui.me.MeViewModel
 
 class PostFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = PostFragment()
-    }
-
-    private lateinit var viewModel: PostViewModel
+    private var _binding: FragmentPostBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_post, container, false)
+    ): View {
+        _binding = FragmentPostBinding.inflate(inflater, container, false)
+
+        binding.postPublish.setOnClickListener {
+            requireActivity().findNavController(R.id.nav_host_fullscreen).navigate(R.id.navigation_post_publish)
+        }
+
+        return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(PostViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

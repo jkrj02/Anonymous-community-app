@@ -20,6 +20,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/b62e79bffb76b32974a45390a5cba28b/transformed/databinding-adapters-8.0.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.databinding/databinding-common/8.0.1/84ed411631d2c4113f4ad992669fe3f50a83f072/databinding-common-8.0.1.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/56510ee43417d8269badbc5fb4952ddf/transformed/databinding-ktx-8.0.1-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/f854d78ac5b8467498ba4ca51a275436/transformed/TabLayout-3.5.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/580d4b556cb5993daadfbb3d67ec5226/transformed/navigation-fragment-ktx-2.5.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/8d68eb308f53536789d2bc44214e5231/transformed/navigation-fragment-2.5.2-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/691ea6fc8c6c77d1a9bbc2ca8fb44a7d/transformed/fragment-ktx-1.5.2-api.jar</arg>
@@ -214,5 +215,6 @@
     <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-ui:1.0.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.swiperefreshlayout:swiperefreshlayout:1.0.0@aar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.asynclayoutinflater:asynclayoutinflater:1.0.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.angcyo.DslTablayout:TabLayout:3.5.2@aar" level="project" />
   </component>
 </module>

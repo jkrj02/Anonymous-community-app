@@ -15,4 +15,9 @@
         android:id="@+id/navigation_login"
         android:name="com.example.anonymous_community_app.ui.login.LoginFragment"
         tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/navigation_post_publish"
+        android:name="com.example.anonymous_community_app.ui.post.PostPublishFragment"
+        android:label="fragment_post_publish"
+        tools:layout="@layout/fragment_post_publish" />
 </navigation>
