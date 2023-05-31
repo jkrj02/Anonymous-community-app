@@ -5,6 +5,12 @@
     <string name="title_message">消息</string>
     <string name="title_me">我的</string>
     <string name="login_return">&#060; 返回</string>
+    <string-array name="post_type">
+        <item>生活分享</item>
+        <item>信息互换</item>
+        <item>匿名树洞</item>
+    </string-array>
+    <string name="post_type_chose">请选择&#8230;&#8230;&#8230;</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

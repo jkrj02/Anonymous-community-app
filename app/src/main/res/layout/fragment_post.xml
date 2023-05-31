@@ -25,7 +25,7 @@
             android:textSize="40sp" />
 
         <ImageButton
-            android:id="@+id/post_add"
+            android:id="@+id/post_publish"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
@@ -35,85 +35,98 @@
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/editTextText"
+    <LinearLayout
+        android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/round_corner"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:hint="请输入搜索关键词&#046;&#046;&#046;"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText"
-        tools:layout_editor_absoluteX="10dp">
-
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
+        <EditText
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="生活分享"
-            android:textColor="@color/black" />
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:hint="请输入搜索关键词..."
+            android:textSize="15sp"
+            android:inputType="text"
+            android:background="@null"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-        <Button
-            android:id="@+id/button3"
+        <ImageView
+            android:id="@+id/search_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="信息互换"
-            android:textColor="@color/black" />
+            android:layout_height="match_parent"
+            android:paddingEnd="5dp"
+            android:src="@drawable/search" />
 
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="匿名树洞"
-            android:textColor="@color/black"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
-        tools:layout_editor_absoluteX="10dp">
-
-        <TextView
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout1"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:background="@drawable/post_type_background"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/editText"
+        app:layout_constraintStart_toStartOf="@+id/editText"
+        app:layout_constraintTop_toBottomOf="@+id/editText"
+        app:tabBackground="@drawable/post_type_selector"
+        app:tabIndicator="@color/transparent">
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="最新动态"
-            android:textColor="@color/black"
-            android:textSize="17sp" />
-
-        <TextView
+            android:text="生活分享" />
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="热门讨论"
-            android:textColor="@color/black"
-            android:textSize="17sp" />
-
-        <TextView
+            android:text="信息互换" />
+        <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="推荐帖子"
-            android:textColor="@color/black"
-            android:textSize="17sp" />
-    </LinearLayout>
+            android:text="匿名树洞" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout2"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/tabLayout1"
+        app:layout_constraintStart_toStartOf="@+id/tabLayout1"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout1"
+        app:tabIndicatorFullWidth="false">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="最新动态" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="热门讨论" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐帖子" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tabLayout2"
+        app:layout_constraintStart_toStartOf="@+id/tabLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -33,8 +33,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="female" />
-                            <entry key="sourceFile" value="F:\Downloads\icon\edit.svg" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="arrow_down" />
+                            <entry key="sourceFile" value="F:\Downloads\icon\down.svg" />
                           </map>
                         </option>
                       </PersistentState>
