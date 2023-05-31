@@ -24,8 +24,8 @@ public class NewService {
     public Iterable<New> getByUserId(int id) {
         return repository.findByUserId(id);
     }
-    public Iterable<New> getByOtherId(int id,int type) {
-        return repository.findByOtherIdAndType(id,type);
+    public Iterable<New> getByByOtherId(int id,int type) {
+        return repository.findByTypeAndOtherId(id,type);
     }
     public void insert(New a) {
         if(repository.existsByUserIdAndTypeAndOtherNameAndContentAndPostIdAndCourseId(a.getUserId(),a.getType(),a.getOtherName(),a.getContent(),a.getPostId(),a.getCourseId()))//存在类似的新消息就不添加新消息了

@@ -2,16 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.*;
 
-import com.example.demo.response.ResponseMyBody;
 import com.example.demo.response.ResponseCode;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,7 +25,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 //主程序
 @RestController
@@ -274,10 +267,10 @@ public class Controller {
     @PostMapping("comment/add")
     public Object addComment(@RequestBody Comment a){
         New new_t=new New();
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(1);
         new_t.setOtherName(a.getUserName());
-        new_t.setOtherId(a.getUserId());
+        new_t.setOtherId(a.getPostId());
         new_t.setContent(a.getContent());
         new_t.setPostId(a.getPostId());
         new_t.setSubContent(postService.getPostContentById(a.getPostId()));
@@ -316,7 +309,7 @@ public class Controller {
     @PostMapping("courseComment/add")
     public Object addCComment(@RequestBody CourseComment a){
         New new_t=new New();
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(1);
         new_t.setOtherName(a.getUserName());
         new_t.setOtherId(a.getUserId());
@@ -344,7 +337,7 @@ public class Controller {
     public Object addLike(@RequestBody myLike a) {
         New new_t=new New();
         new_t.setNewId(0);
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(a.getUserId()));
         new_t.setOtherId(a.getUserId());
@@ -371,7 +364,7 @@ public class Controller {
     }
     @GetMapping("like/my")
     public Object getMyLike(@RequestParam int id) {
-        return newService.getByOtherId(id,0);
+      return newService.getByByOtherId(id,0);
     }
     @DeleteMapping("like/delete")
     public Object deleteLike(@RequestBody myLike a) {
@@ -503,6 +496,24 @@ public class Controller {
     public String test() {
         return "test";
     }
+    @GetMapping("test/user/login")
+    public Object testUserLogin() {
+        User a=new User();
+        a.setPassword("123456");
+        a.setAdmin(true);
+        a.setUserId(546);
+        a.setGender(true);
+        a.setUserName("wang99");
+
+        return signInUp(a);
+    }
+    @GetMapping("test/new")
+    public Object testnew() {
+
+        return newService.getAll();
+    }
+
+
     @GetMapping("test1")
     public  Object test111(){
         return newService.getAll();
@@ -512,7 +523,7 @@ public class Controller {
     public Object test1() {
         New new_t=new New();
         new_t.setNewId(0);
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(520));
         new_t.setContent("hhhh");
