@@ -29,7 +29,6 @@ public class Comment {
     private int likeCount;
     private int dislikeCount;
     private Date time;
-    //private String courseName;
-    //private String tearchName;
+
 
 }
