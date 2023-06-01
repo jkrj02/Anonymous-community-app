@@ -264,20 +264,23 @@ public class Controller {
     }
 
 
+    @Transactional
     @PostMapping("comment/add")
     public Object addComment(@RequestBody Comment a){
         New new_t=new New();
         new_t.setNewRead(false);
         new_t.setType(1);
         new_t.setOtherName(a.getUserName());
-        new_t.setOtherId(a.getPostId());
+        new_t.setOtherId(a.getUserId());
         new_t.setContent(a.getContent());
         new_t.setPostId(a.getPostId());
         new_t.setSubContent(postService.getPostContentById(a.getPostId()));
         if (a.getObjectId()==0){
-            new_t.setUserId(postService.getUserIDById(a.getUserId()));
+            new_t.setUserId(postService.getUserIDById(a.getPostId()));
         } else{
             new_t.setUserId(commentService.getUserIDById(a.getObjectId()));
+            String sql="update comment set comment_count = comment_count + 1 where comment_id = "+String.valueOf(a.getObjectId());
+            entityManager.createNativeQuery(sql).executeUpdate();
         }
         new_t.setCourseId(0);
 
@@ -306,20 +309,24 @@ public class Controller {
         comments.addAll(query.getResultList());
         return comments;
     }
+    @Transactional
     @PostMapping("courseComment/add")
     public Object addCComment(@RequestBody CourseComment a){
-        New new_t=new New();
-        new_t.setNewRead(false);
-        new_t.setType(1);
-        new_t.setOtherName(a.getUserName());
-        new_t.setOtherId(a.getUserId());
-        new_t.setContent(a.getContent());
-        new_t.setSubContent(courseService.getNameById(a.getCourseId()));
-        new_t.setCourseId(a.getCourseId());
-        new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
-        new_t.setPostId(0);
-
-        newService.insert(new_t);
+        if (a.getObjectId()!=0){
+            New new_t=new New();
+            new_t.setNewRead(false);
+            new_t.setType(1);
+            new_t.setOtherName(a.getUserName());
+            new_t.setOtherId(a.getUserId());
+            new_t.setContent(a.getContent());
+            new_t.setSubContent(courseService.getNameById(a.getCourseId()));
+            new_t.setCourseId(a.getCourseId());
+            new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
+            String sql="update course_comment set comment_count = comment_count + 1 where comment_id = "+String.valueOf(a.getObjectId());
+            entityManager.createNativeQuery(sql).executeUpdate();
+            new_t.setPostId(0);
+            newService.insert(new_t);
+        }
         return courseCommentService.insert(a);
     }
     @Transactional
