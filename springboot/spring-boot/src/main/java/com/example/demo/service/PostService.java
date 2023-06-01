@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Comment;
 import com.example.demo.entity.Post;
-import com.example.demo.entity.User;
-import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +17,10 @@ public class PostService {
 
     private final PostRepository repository;
 
+    public boolean exist(int id)
+    {
+        return repository.existsById(id);
+    }
     public int getUserIDById(int id) {
         Optional<Post> tt = repository.findById(id);
         return tt.get().getUserId();

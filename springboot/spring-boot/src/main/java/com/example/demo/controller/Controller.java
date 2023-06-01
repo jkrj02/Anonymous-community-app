@@ -69,11 +69,11 @@ public class Controller {
     }
 
     @PostMapping("course/add")//添加课程
-    public int addCourse(@RequestBody Course tt) {
+    public Object addCourse(@RequestBody Course tt) {
         if (courseService.exists(tt)) {
-            return  ResponseCode.Course_Create_Failed;
+            return  new ResponseEntity <> ("课程已存在", HttpStatus.BAD_REQUEST);
         }
-        return courseService.insert(tt)!=null ? ResponseCode.Course_Create_Success : ResponseCode.Course_Create_Failed;
+        return courseService.insert(tt)!=null ?new ResponseEntity <> ("创建成功", HttpStatus.OK): new ResponseEntity <> ("创建失败", HttpStatus.BAD_REQUEST);
     }
     @GetMapping("course/get")
     public Object getCourse() {
@@ -93,7 +93,10 @@ public class Controller {
 
     @GetMapping("course/main/{courseId}/{userId}")
     public Object courseMain(@PathVariable int courseId, @PathVariable int userId) {
-
+        if(!postService.exist(userId))
+        {
+            return new ResponseEntity <> ("该课程已删除", HttpStatus.BAD_REQUEST);
+        }
         Iterable<CourseComment> comments = courseCommentService.findByCourseId(courseId);
 
         //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
@@ -137,6 +140,11 @@ public class Controller {
             ((ArrayList<returncomment>) a).add(temp2);
        }
         return a;
+    }
+
+    @DeleteMapping("course/delete/{id}")//用户删除
+    public boolean deleteByCourseId(@PathVariable int id) {
+        return courseService.deleteById(id) ? true : false;
     }
 
     @GetMapping("post/get")
@@ -183,7 +191,11 @@ public class Controller {
     
     @GetMapping("post/main/{postId}/{userId}")
     public Object postMain(@PathVariable int postId, @PathVariable int userId) {
- String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
+        if(!postService.exist(postId))
+        {
+            return new ResponseEntity <> ("帖子已删除", HttpStatus.BAD_REQUEST);
+        }
+     String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
         Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
@@ -271,6 +283,11 @@ public class Controller {
     @Transactional
     @PostMapping("comment/add")
     public Object addComment(@RequestBody Comment a){
+
+        if(!postService.exist(a.getPostId()))
+        {
+            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.BAD_REQUEST);
+        }
         New new_t=new New();
         new_t.setNewRead(false);
         new_t.setType(1);
@@ -298,6 +315,9 @@ public class Controller {
         String SQL = "delete from my_like where comment_id = "+String.valueOf(commentid);
         entityManager.createNativeQuery(SQL).executeUpdate();
 
+        String sql1 = "update comment set user_id = 0 where comment_id="+String.valueOf(commentid);
+        Query query1=entityManager.createNativeQuery(sql1);
+        query1.executeUpdate();
         String sql = "update comment set valid = 0 where comment_id="+String.valueOf(commentid);
         Query query=entityManager.createNativeQuery(sql);
         return query.executeUpdate();

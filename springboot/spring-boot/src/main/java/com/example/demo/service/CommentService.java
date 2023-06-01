@@ -25,6 +25,7 @@ public class CommentService {
         Optional<Comment> tt=repository.findById(id);
         return tt.get().getUserId();
     }
+
     public int getPostIDById(int id)
     {
         Optional<Comment> tt=repository.findById(id);
