@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DislikeRepository extends CrudRepository<Dislike, Integer> {
     Dislike findByUserIdAndPostIdAndCommentIdAndCourseCommentId(int userId, int postId, int commentId, int courseCommentId);
+    boolean existsByUserIdAndPostIdAndCommentIdAndCourseCommentId(int userId,int postId,int commentId,int courseCommentId);
 
 }

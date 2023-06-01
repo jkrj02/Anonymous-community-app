@@ -366,6 +366,10 @@ public class Controller {
 
     @PostMapping("like/add")//点赞
     public Object addLike(@RequestBody myLike a) {
+        if(likeService.exist(a))
+        {
+            return new ResponseEntity <> ("已点赞" , HttpStatus.BAD_REQUEST);
+        }
         New new_t=new New();
         new_t.setNewId(0);
         new_t.setNewRead(false);
@@ -403,6 +407,10 @@ public class Controller {
     }
     @PostMapping("dislike/add")
     public Object addDislike(@RequestBody Dislike a) {
+        if(dislikeService.exist(a))
+        {
+            return new ResponseEntity <> ("已点踩" , HttpStatus.BAD_REQUEST);
+        }
         return dislikeService.insert(a);
     }
 
@@ -457,7 +465,7 @@ public class Controller {
         return "Files successfully uploaded";
     }
     @PostMapping("/image/user/upload")
-    public String imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
+    public Object imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
 
         try {
             // 获取文件名和扩展名
@@ -475,27 +483,31 @@ public class Controller {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // 处理异常，返回错误提示
-            return "Failed to upload file: " + e.getMessage();
+            return  new ResponseEntity <> ("上传失败 " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         // 返回成功提示
-        return "File successfully uploaded";
+        return "上传成功";
     }
 
     @RequestMapping(value = "image/get", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
-    public byte[] getPhotos(@RequestParam("id") Long id) throws IOException {
-        File directory = new File("/root/data/user/" + id);
+    public Object getPhotos(@RequestParam("id") int id)  {
+        File directory = new File("/root/data/post/" + id);
         if (!directory.isDirectory()) {
-            throw new FileNotFoundException(Integer.toString(ResponseCode.No_Image));
+            return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
         }
 
         List<byte[]> imageBytesList = new ArrayList<>();
         for (File file : directory.listFiles()) {
             if (file.isFile() &&( file.getName().endsWith(".jpg")||file.getName().endsWith(".png")) ){
-                FileInputStream inputStream = new FileInputStream(file);
-                byte[] bytes = new byte[inputStream.available()];
-                inputStream.read(bytes, 0, inputStream.available());
-                imageBytesList.add(bytes);
+                try {
+                    FileInputStream inputStream = new FileInputStream(file);
+                    byte[] bytes = new byte[inputStream.available()];
+                    inputStream.read(bytes, 0, inputStream.available());
+                    imageBytesList.add(bytes);
+                } catch (IOException e) {
+                    return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+                }
             }
         }
 
@@ -512,16 +524,22 @@ public class Controller {
 
     @RequestMapping(value = "/image/get2/{id}/{imgUrl:[a-zA-Z0-9_.]+}", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
-    public byte[] getPhoto2(@PathVariable("id") String id,@PathVariable("imgUrl") String imgUrl) throws IOException {
-        File file =  new File("/root/data/user/" + id+"/"+imgUrl);
-        if (file!=null)
-        {
-        FileInputStream inputStream = new FileInputStream(file);
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes, 0, inputStream.available());
-        return bytes;
+    public Object getPhoto2(@PathVariable("id") int id, @PathVariable("imgUrl") String imgUrl) {
+        File file = new File("/root/data/user/" + id + "/" + imgUrl);
+        if (file.exists()) {
+            try {
+                FileInputStream inputStream = new FileInputStream(file);
+                byte[] bytes = new byte[inputStream.available()];
+                inputStream.read(bytes, 0, inputStream.available());
+                return bytes;
+            } catch (IOException e) {
+                // 处理读取文件异常
+                return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            // 文件不存在，返回错误信息
+            return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
         }
-        return null;
     }
     @GetMapping("test")
     public String test() {
