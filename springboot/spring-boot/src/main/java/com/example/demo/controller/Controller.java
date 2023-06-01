@@ -6,6 +6,7 @@ import com.example.demo.response.ResponseCode;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -371,8 +373,8 @@ public class Controller {
         newService.insert(new_t);
         return likeService.insert(a);
     }
-    @GetMapping("like/my")
-    public Object getMyLike(@RequestParam int id) {
+    @GetMapping("like/my/{id}")
+    public Object getMyLike(@PathVariable int id) {
       return newService.getByByOtherId(id,0);
     }
     @DeleteMapping("like/delete")
@@ -394,8 +396,8 @@ public class Controller {
         return newService.update(a);//return true;
     }
 
-    @GetMapping("new/get")
-    public Object getNew(@RequestParam("id") int id){
+    @GetMapping("new/get/{id}")
+    public Object getNew(@PathVariable int id){
         return newService.getByUserId(id);
     }
 
