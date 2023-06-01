@@ -22,13 +22,14 @@ public class Comment {
     private int postId;
     private int objectId;
     private int userId;
-    private  String othername;
     private String userName;
+    private  String othername;
     private String content;
     private int commentCount;
     private int likeCount;
     private int dislikeCount;
     private Date time;
+    private boolean valid;
 
 
 }
