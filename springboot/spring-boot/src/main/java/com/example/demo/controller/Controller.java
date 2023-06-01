@@ -6,7 +6,9 @@ import com.example.demo.response.ResponseCode;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -46,11 +48,11 @@ public class Controller {
     public Object signInUp(@RequestBody User user) {
         if (service.exists(user)) {
             User u = service.findByNameAndPassword(user);
-            return u!=null?u:ResponseCode.Login_Failed;
+            return u!=null?u: new ResponseEntity <> ("密码错误", HttpStatus.BAD_REQUEST);
         }
         else {
             User u=service.insert(user);
-            return u!=null ?u:ResponseCode.User_Create_Failed;
+            return u!=null ?u:new ResponseEntity <> ("创建失败", HttpStatus.BAD_REQUEST);
         }
     }
     @PutMapping("user/update")//用户更新
@@ -58,8 +60,8 @@ public class Controller {
         return service.update(user) ? true : false;
     }
 
-    @DeleteMapping("user/delete")//用户删除
-    public boolean deleteById(@RequestParam int id) {
+    @DeleteMapping("user/delete/{id}")//用户删除
+    public boolean deleteById(@PathVariable int id) {
 
         return service.deleteById(id) ? true : false;
     }
