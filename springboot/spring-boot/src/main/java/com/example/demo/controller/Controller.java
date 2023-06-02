@@ -184,7 +184,7 @@ public class Controller {
         return postService.insert(a);
     }
 
-     @GetMapping("post/delete")
+     @DeleteMapping("post/delete")
     public boolean deletePost(@RequestParam int postid) {
         return postService.deleteById(postid);
     }
