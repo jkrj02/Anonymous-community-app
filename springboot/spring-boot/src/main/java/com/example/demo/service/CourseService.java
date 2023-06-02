@@ -18,7 +18,10 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CourseService {
     private final CourseRepository repository;
-
+    public boolean existById(int id)
+    {
+        return repository.existsById(id);
+    }
     public boolean deleteById(int id) {
         if (!repository.existsById(id)) {
             return false;

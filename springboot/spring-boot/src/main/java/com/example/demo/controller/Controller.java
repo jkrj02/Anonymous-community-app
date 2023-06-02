@@ -53,10 +53,21 @@ public class Controller {
             return u!=null?u: new ResponseEntity <> ("密码错误", HttpStatus.BAD_REQUEST);
         }
         else {
+           // User u=service.insert(user);
+            return new ResponseEntity <> ("用户不存在", HttpStatus.BAD_REQUEST);
+        }
+    }
+    @PostMapping("user/create")//创建
+    public Object userCreate(@RequestBody User user) {
+        if (service.exists(user)) {
+            return  new ResponseEntity <> ("用户名已存在", HttpStatus.BAD_REQUEST);
+        }
+        else {
             User u=service.insert(user);
             return u!=null ?u:new ResponseEntity <> ("创建失败", HttpStatus.BAD_REQUEST);
         }
     }
+
     @PutMapping("user/update")//用户更新
     public boolean update(@RequestBody User user) {
         return service.update(user) ? true : false;
@@ -93,7 +104,7 @@ public class Controller {
 
     @GetMapping("course/main/{courseId}/{userId}")
     public Object courseMain(@PathVariable int courseId, @PathVariable int userId) {
-        if(!postService.exist(userId))
+        if(!courseService.existById(courseId))
         {
             return new ResponseEntity <> ("该课程已删除", HttpStatus.BAD_REQUEST);
         }
@@ -599,19 +610,6 @@ public class Controller {
         //return commentService.getAll();
     }
 
-    @GetMapping("/test/test2")//测试上传图片
-    public String test12() {
-        try {
-            Path imagePath = Paths.get("D:/Desktop/2.jpg");
-            byte[] imageData = Files.readAllBytes(imagePath);
-            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
-            imageUpload2(file, 10);
-            return "Test upload image";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload image: " + e.getMessage();
-        }
-    }
 
 
     @GetMapping("test2/{id}/{orderId}")//访问test2/123/456
@@ -634,5 +632,17 @@ public class Controller {
         String a="ss";
         return courses;
     }
-
+    @GetMapping("/test/image")//测试上传图片
+    public String testImage(@RequestParam int id) {
+        try {
+            Path imagePath = Paths.get("D:/Desktop/2.jpg");
+            byte[] imageData = Files.readAllBytes(imagePath);
+            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
+            imageUpload2(file, id);
+            return "Test upload image";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to upload image: " + e.getMessage();
+        }
+    }
 }
