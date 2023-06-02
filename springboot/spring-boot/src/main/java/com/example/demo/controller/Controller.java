@@ -50,21 +50,21 @@ public class Controller {
     public Object signInUp(@RequestBody User user) {
         if (service.exists(user)) {
             User u = service.findByNameAndPassword(user);
-            return u!=null?u: new ResponseEntity <> ("密码错误", HttpStatus.BAD_REQUEST);
+            return u!=null?u: new ResponseEntity <> ("密码错误", HttpStatus.FORBIDDEN);
         }
         else {
            // User u=service.insert(user);
-            return new ResponseEntity <> ("用户不存在", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <> ("用户不存在", HttpStatus.FORBIDDEN);
         }
     }
     @PostMapping("user/create")//创建
     public Object userCreate(@RequestBody User user) {
         if (service.exists(user)) {
-            return  new ResponseEntity <> ("用户名已存在", HttpStatus.BAD_REQUEST);
+            return  new ResponseEntity <> ("用户名已存在", HttpStatus.FORBIDDEN);
         }
         else {
             User u=service.insert(user);
-            return u!=null ?u:new ResponseEntity <> ("创建失败", HttpStatus.BAD_REQUEST);
+            return u!=null ?u:new ResponseEntity <> ("创建失败", HttpStatus.FORBIDDEN);
         }
     }
 
@@ -82,9 +82,9 @@ public class Controller {
     @PostMapping("course/add")//添加课程
     public Object addCourse(@RequestBody Course tt) {
         if (courseService.exists(tt)) {
-            return  new ResponseEntity <> ("课程已存在", HttpStatus.BAD_REQUEST);
+            return  new ResponseEntity <> ("课程已存在", HttpStatus.FORBIDDEN);
         }
-        return courseService.insert(tt)!=null ?new ResponseEntity <> ("创建成功", HttpStatus.OK): new ResponseEntity <> ("创建失败", HttpStatus.BAD_REQUEST);
+        return courseService.insert(tt)!=null ?new ResponseEntity <> ("创建成功", HttpStatus.OK): new ResponseEntity <> ("创建失败", HttpStatus.FORBIDDEN);
     }
     @GetMapping("course/get")
     public Object getCourse() {
@@ -106,7 +106,7 @@ public class Controller {
     public Object courseMain(@PathVariable int courseId, @PathVariable int userId) {
         if(!courseService.existById(courseId))
         {
-            return new ResponseEntity <> ("该课程已删除", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <> ("该课程已删除", HttpStatus.FORBIDDEN);
         }
         Iterable<CourseComment> comments = courseCommentService.findByCourseId(courseId);
 
@@ -153,7 +153,7 @@ public class Controller {
         return a;
     }
 
-    @DeleteMapping("course/delete/{id}")//用户删除
+    @DeleteMapping("course/delete/{id}")//课程删除
     public boolean deleteByCourseId(@PathVariable int id) {
         return courseService.deleteById(id) ? true : false;
     }
@@ -297,7 +297,7 @@ public class Controller {
 
         if(!postService.exist(a.getPostId()))
         {
-            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.FORBIDDEN);
         }
         New new_t=new New();
         new_t.setNewRead(false);
@@ -347,6 +347,10 @@ public class Controller {
     @Transactional
     @PostMapping("courseComment/add")
     public Object addCComment(@RequestBody CourseComment a){
+        if(!courseService.existById(a.getCourseId()))
+        {
+            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.FORBIDDEN);
+        }
         if (a.getObjectId()!=0){
             New new_t=new New();
             new_t.setNewRead(false);
@@ -379,7 +383,7 @@ public class Controller {
     public Object addLike(@RequestBody myLike a) {
         if(likeService.exist(a))
         {
-            return new ResponseEntity <> ("已点赞" , HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <> ("已点赞" , HttpStatus.FORBIDDEN);
         }
         New new_t=new New();
         new_t.setNewId(0);
@@ -420,7 +424,7 @@ public class Controller {
     public Object addDislike(@RequestBody Dislike a) {
         if(dislikeService.exist(a))
         {
-            return new ResponseEntity <> ("已点踩" , HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <> ("已点踩" , HttpStatus.FORBIDDEN);
         }
         return dislikeService.insert(a);
     }
@@ -494,7 +498,7 @@ public class Controller {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // 处理异常，返回错误提示
-            return  new ResponseEntity <> ("上传失败 " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return  new ResponseEntity <> ("上传失败 " + e.getMessage(), HttpStatus.FORBIDDEN);
         }
         // 返回成功提示
         return "上传成功";
@@ -505,7 +509,7 @@ public class Controller {
     public Object getPhotos(@RequestParam("id") int id)  {
         File directory = new File("/root/data/post/" + id);
         if (!directory.isDirectory()) {
-            return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
         }
 
         List<byte[]> imageBytesList = new ArrayList<>();
@@ -517,7 +521,7 @@ public class Controller {
                     inputStream.read(bytes, 0, inputStream.available());
                     imageBytesList.add(bytes);
                 } catch (IOException e) {
-                    return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
                 }
             }
         }
@@ -545,11 +549,11 @@ public class Controller {
                 return bytes;
             } catch (IOException e) {
                 // 处理读取文件异常
-                return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
             }
         } else {
             // 文件不存在，返回错误信息
-            return new ResponseEntity<>("文件不存在", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
         }
     }
     @GetMapping("test")
