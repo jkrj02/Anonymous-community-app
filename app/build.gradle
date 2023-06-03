@@ -53,4 +53,8 @@ dependencies {
     // 第三方库
     implementation "androidx.fragment:fragment-ktx:1.5.2"
     implementation 'com.github.angcyo.DslTablayout:TabLayout:3.5.2'
+    // 服务器通讯
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.68'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
 }

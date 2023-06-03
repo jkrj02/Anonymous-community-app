@@ -12,12 +12,43 @@
         tools:layout="@layout/fragment_main" />
 
     <fragment
-        android:id="@+id/navigation_login"
-        android:name="com.example.anonymous_community_app.ui.login.LoginFragment"
-        tools:layout="@layout/fragment_login" />
+        android:id="@+id/navigation_sign_in"
+        android:name="com.example.anonymous_community_app.ui.me.SignInFragment"
+        tools:layout="@layout/fragment_sign_in" />
     <fragment
         android:id="@+id/navigation_post_publish"
         android:name="com.example.anonymous_community_app.ui.post.PostPublishFragment"
         android:label="fragment_post_publish"
         tools:layout="@layout/fragment_post_publish" />
+    <fragment
+        android:id="@+id/navigation_sign_up"
+        android:name="com.example.anonymous_community_app.ui.me.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" />
+
+    <fragment
+        android:id="@+id/navigation_me_modify"
+        android:name="com.example.anonymous_community_app.ui.me.MeModifyFragment"
+        android:label="fragment_me_modify"
+        tools:layout="@layout/fragment_me_modify" />
+    <fragment
+        android:id="@+id/navigation_me_publication"
+        android:name="com.example.anonymous_community_app.ui.me.MePublicationFragment"
+        android:label="fragment_me_publication"
+        tools:layout="@layout/fragment_me_publication" />
+    <fragment
+        android:id="@+id/navigation_me_comment"
+        android:name="com.example.anonymous_community_app.ui.me.MeCommentFragment"
+        android:label="fragment_me_comment"
+        tools:layout="@layout/fragment_me_comment" />
+    <fragment
+        android:id="@+id/navigation_me_like"
+        android:name="com.example.anonymous_community_app.ui.me.MeLikeFragment"
+        android:label="fragment_me_like"
+        tools:layout="@layout/fragment_me_like" />
+    <fragment
+        android:id="@+id/navigation_me_setting"
+        android:name="com.example.anonymous_community_app.ui.me.MeSettingFragment"
+        android:label="fragment_me_setting"
+        tools:layout="@layout/fragment_me_setting" />
 </navigation>
