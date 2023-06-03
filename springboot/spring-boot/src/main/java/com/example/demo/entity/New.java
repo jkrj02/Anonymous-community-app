@@ -20,12 +20,12 @@ public class New{
     private int userId;
     private int type;
     private String otherName;
-    private int otherId;
+
     private String content;
     private int postId;
     private int courseId;
     private String subContent;
-    private boolean isRead;
-
+    private boolean newRead;
+    private int otherId;
 
 }

@@ -37,7 +37,10 @@ public class UserService {
     }
 
     public boolean update(User user) {
-        if (repository.existsByUserName(user.getUserName())) {
+        User a= repository.findByUserName(user.getUserName());
+
+        if (a!=null&&a.getUserId()!=user.getUserId()) {
+
             return false;
         }
         repository.save(user);

@@ -19,6 +19,17 @@ import java.util.Optional;
 public class CourseService {
     private final CourseRepository repository;
 
+    public boolean existById(int id)
+    {
+        return repository.existsById(id);
+    }
+    public boolean deleteById(int id) {
+        if (!repository.existsById(id)) {
+            return false;
+        }
+        repository.deleteById(id);
+        return true;
+    }
     public boolean exists(Course user) {
         return repository.existsByTeacherNameAndCourseName(user.getTeacherName(), user.getCourseName());
     }

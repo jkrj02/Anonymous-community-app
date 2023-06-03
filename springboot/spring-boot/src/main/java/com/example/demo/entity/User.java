@@ -22,5 +22,5 @@ public class User {
     private boolean gender;
     private String userName;
     private String password;
-    private boolean isAdmin;
+    private boolean admin;
 }

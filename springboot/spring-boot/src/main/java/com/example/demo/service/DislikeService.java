@@ -23,8 +23,15 @@ public class DislikeService {
     }
     public boolean delete(Dislike a){
         Dislike tt = repository.findByUserIdAndPostIdAndCommentIdAndCourseCommentId(a.getUserId(), a.getPostId(), a.getCommentId(), a.getCourseCommentId());
+        if(tt==null){
+            return false;
+        }
         repository.delete(tt);
         return true;
+    }
+    public  boolean exist(Dislike a)
+    {
+        return repository.existsByUserIdAndPostIdAndCommentIdAndCourseCommentId(a.getUserId(), a.getPostId(), a.getCommentId(), a.getCourseCommentId());
     }
 
 

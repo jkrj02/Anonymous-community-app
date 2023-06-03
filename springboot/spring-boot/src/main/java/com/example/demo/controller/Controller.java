@@ -2,14 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.*;
 
-import com.example.demo.response.ResponseMyBody;
 import com.example.demo.response.ResponseCode;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -20,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.awt.*;
+import javax.websocket.server.PathParam;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,7 +29,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 //主程序
 @RestController
@@ -53,30 +50,41 @@ public class Controller {
     public Object signInUp(@RequestBody User user) {
         if (service.exists(user)) {
             User u = service.findByNameAndPassword(user);
-            return u!=null?u:ResponseCode.Login_Failed;
+            return u!=null?u: new ResponseEntity <> ("密码错误", HttpStatus.FORBIDDEN);
+        }
+        else {
+           // User u=service.insert(user);
+            return new ResponseEntity <> ("用户不存在", HttpStatus.FORBIDDEN);
+        }
+    }
+    @PostMapping("user/create")//创建
+    public Object userCreate(@RequestBody User user) {
+        if (service.exists(user)) {
+            return  new ResponseEntity <> ("用户名已存在", HttpStatus.FORBIDDEN);
         }
         else {
             User u=service.insert(user);
-            return u!=null ?u:ResponseCode.User_Create_Failed;
+            return u!=null ?u:new ResponseEntity <> ("创建失败", HttpStatus.FORBIDDEN);
         }
     }
+
     @PutMapping("user/update")//用户更新
     public boolean update(@RequestBody User user) {
         return service.update(user) ? true : false;
     }
 
-    @DeleteMapping("user/delete")//用户删除
-    public boolean deleteById(@RequestParam int id) {
+    @DeleteMapping("user/delete/{id}")//用户删除
+    public boolean deleteById(@PathVariable int id) {
 
         return service.deleteById(id) ? true : false;
     }
 
     @PostMapping("course/add")//添加课程
-    public int addCourse(@RequestBody Course tt) {
+    public Object addCourse(@RequestBody Course tt) {
         if (courseService.exists(tt)) {
-            return  ResponseCode.Course_Create_Failed;
+            return  new ResponseEntity <> ("课程已存在", HttpStatus.FORBIDDEN);
         }
-        return courseService.insert(tt)!=null ? ResponseCode.Course_Create_Success : ResponseCode.Course_Create_Failed;
+        return courseService.insert(tt)!=null ?new ResponseEntity <> ("创建成功", HttpStatus.OK): new ResponseEntity <> ("创建失败", HttpStatus.FORBIDDEN);
     }
     @GetMapping("course/get")
     public Object getCourse() {
@@ -96,7 +104,10 @@ public class Controller {
 
     @GetMapping("course/main/{courseId}/{userId}")
     public Object courseMain(@PathVariable int courseId, @PathVariable int userId) {
-
+        if(!courseService.existById(courseId))
+        {
+            return new ResponseEntity <> ("该课程已删除", HttpStatus.FORBIDDEN);
+        }
         Iterable<CourseComment> comments = courseCommentService.findByCourseId(courseId);
 
         //查询每个comment，根据comment_id和user_id确定用户是否对其点赞
@@ -142,6 +153,11 @@ public class Controller {
         return a;
     }
 
+    @DeleteMapping("course/delete/{id}")//课程删除
+    public boolean deleteByCourseId(@PathVariable int id) {
+        return courseService.deleteById(id) ? true : false;
+    }
+
     @GetMapping("post/get")
     public Object getPost() {
         return postService.getAll();
@@ -179,14 +195,18 @@ public class Controller {
         return postService.insert(a);
     }
 
-     @GetMapping("post/delete")
+     @DeleteMapping("post/delete")
     public boolean deletePost(@RequestParam int postid) {
         return postService.deleteById(postid);
     }
     
     @GetMapping("post/main/{postId}/{userId}")
     public Object postMain(@PathVariable int postId, @PathVariable int userId) {
- String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
+        if(!postService.exist(postId))
+        {
+            return new ResponseEntity <> ("帖子已删除", HttpStatus.BAD_REQUEST);
+        }
+     String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
         Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
@@ -271,10 +291,16 @@ public class Controller {
     }
 
 
+    @Transactional
     @PostMapping("comment/add")
     public Object addComment(@RequestBody Comment a){
+
+        if(!postService.exist(a.getPostId()))
+        {
+            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.FORBIDDEN);
+        }
         New new_t=new New();
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(1);
         new_t.setOtherName(a.getUserName());
         new_t.setOtherId(a.getUserId());
@@ -282,9 +308,11 @@ public class Controller {
         new_t.setPostId(a.getPostId());
         new_t.setSubContent(postService.getPostContentById(a.getPostId()));
         if (a.getObjectId()==0){
-            new_t.setUserId(postService.getUserIDById(a.getUserId()));
+            new_t.setUserId(postService.getUserIDById(a.getPostId()));
         } else{
             new_t.setUserId(commentService.getUserIDById(a.getObjectId()));
+            String sql="update comment set comment_count = comment_count + 1 where comment_id = "+String.valueOf(a.getObjectId());
+            entityManager.createNativeQuery(sql).executeUpdate();
         }
         new_t.setCourseId(0);
 
@@ -298,6 +326,9 @@ public class Controller {
         String SQL = "delete from my_like where comment_id = "+String.valueOf(commentid);
         entityManager.createNativeQuery(SQL).executeUpdate();
 
+        String sql1 = "update comment set user_id = 0 where comment_id="+String.valueOf(commentid);
+        Query query1=entityManager.createNativeQuery(sql1);
+        query1.executeUpdate();
         String sql = "update comment set valid = 0 where comment_id="+String.valueOf(commentid);
         Query query=entityManager.createNativeQuery(sql);
         return query.executeUpdate();
@@ -313,20 +344,28 @@ public class Controller {
         comments.addAll(query.getResultList());
         return comments;
     }
+    @Transactional
     @PostMapping("courseComment/add")
     public Object addCComment(@RequestBody CourseComment a){
-        New new_t=new New();
-        new_t.setRead(false);
-        new_t.setType(1);
-        new_t.setOtherName(a.getUserName());
-        new_t.setOtherId(a.getUserId());
-        new_t.setContent(a.getContent());
-        new_t.setSubContent(courseService.getNameById(a.getCourseId()));
-        new_t.setCourseId(a.getCourseId());
-        new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
-        new_t.setPostId(0);
-
-        newService.insert(new_t);
+        if(!courseService.existById(a.getCourseId()))
+        {
+            return new ResponseEntity <> ("添加失败，已被删除", HttpStatus.FORBIDDEN);
+        }
+        if (a.getObjectId()!=0){
+            New new_t=new New();
+            new_t.setNewRead(false);
+            new_t.setType(1);
+            new_t.setOtherName(a.getUserName());
+            new_t.setOtherId(a.getUserId());
+            new_t.setContent(a.getContent());
+            new_t.setSubContent(courseService.getNameById(a.getCourseId()));
+            new_t.setCourseId(a.getCourseId());
+            new_t.setUserId(courseCommentService.getUserIDById(a.getObjectId()));
+            String sql="update course_comment set comment_count = comment_count + 1 where comment_id = "+String.valueOf(a.getObjectId());
+            entityManager.createNativeQuery(sql).executeUpdate();
+            new_t.setPostId(0);
+            newService.insert(new_t);
+        }
         return courseCommentService.insert(a);
     }
     @Transactional
@@ -342,9 +381,13 @@ public class Controller {
 
     @PostMapping("like/add")//点赞
     public Object addLike(@RequestBody myLike a) {
+        if(likeService.exist(a))
+        {
+            return new ResponseEntity <> ("已点赞" , HttpStatus.FORBIDDEN);
+        }
         New new_t=new New();
         new_t.setNewId(0);
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(a.getUserId()));
         new_t.setOtherId(a.getUserId());
@@ -369,9 +412,9 @@ public class Controller {
         newService.insert(new_t);
         return likeService.insert(a);
     }
-    @GetMapping("like/my")
-    public Object getMyLike(@RequestParam int id) {
-        return newService.getByOtherId(id,0);
+    @GetMapping("like/my/{id}")
+    public Object getMyLike(@PathVariable int id) {
+      return newService.getByByOtherId(id,0);
     }
     @DeleteMapping("like/delete")
     public Object deleteLike(@RequestBody myLike a) {
@@ -379,6 +422,10 @@ public class Controller {
     }
     @PostMapping("dislike/add")
     public Object addDislike(@RequestBody Dislike a) {
+        if(dislikeService.exist(a))
+        {
+            return new ResponseEntity <> ("已点踩" , HttpStatus.FORBIDDEN);
+        }
         return dislikeService.insert(a);
     }
 
@@ -392,8 +439,8 @@ public class Controller {
         return newService.update(a);//return true;
     }
 
-    @GetMapping("new/get")
-    public Object getNew(@RequestParam("id") int id){
+    @GetMapping("new/get/{id}")
+    public Object getNew(@PathVariable int id){
         return newService.getByUserId(id);
     }
 
@@ -433,7 +480,7 @@ public class Controller {
         return "Files successfully uploaded";
     }
     @PostMapping("/image/user/upload")
-    public String imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
+    public Object imageUpload2(@RequestParam("file") MultipartFile file, @RequestParam("id") int id) {
 
         try {
             // 获取文件名和扩展名
@@ -451,27 +498,31 @@ public class Controller {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             // 处理异常，返回错误提示
-            return "Failed to upload file: " + e.getMessage();
+            return  new ResponseEntity <> ("上传失败 " + e.getMessage(), HttpStatus.FORBIDDEN);
         }
         // 返回成功提示
-        return "File successfully uploaded";
+        return "上传成功";
     }
 
     @RequestMapping(value = "image/get", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
-    public byte[] getPhotos(@RequestParam("id") Long id) throws IOException {
-        File directory = new File("/root/data/user/" + id);
+    public Object getPhotos(@RequestParam("id") int id)  {
+        File directory = new File("/root/data/post/" + id);
         if (!directory.isDirectory()) {
-            throw new FileNotFoundException(Integer.toString(ResponseCode.No_Image));
+            return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
         }
 
         List<byte[]> imageBytesList = new ArrayList<>();
         for (File file : directory.listFiles()) {
             if (file.isFile() &&( file.getName().endsWith(".jpg")||file.getName().endsWith(".png")) ){
-                FileInputStream inputStream = new FileInputStream(file);
-                byte[] bytes = new byte[inputStream.available()];
-                inputStream.read(bytes, 0, inputStream.available());
-                imageBytesList.add(bytes);
+                try {
+                    FileInputStream inputStream = new FileInputStream(file);
+                    byte[] bytes = new byte[inputStream.available()];
+                    inputStream.read(bytes, 0, inputStream.available());
+                    imageBytesList.add(bytes);
+                } catch (IOException e) {
+                    return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
+                }
             }
         }
 
@@ -488,21 +539,45 @@ public class Controller {
 
     @RequestMapping(value = "/image/get2/{id}/{imgUrl:[a-zA-Z0-9_.]+}", produces ={MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ResponseBody
-    public byte[] getPhoto2(@PathVariable("id") String id,@PathVariable("imgUrl") String imgUrl) throws IOException {
-        File file =  new File("/root/data/user/" + id+"/"+imgUrl);
-        if (file!=null)
-        {
-        FileInputStream inputStream = new FileInputStream(file);
-        byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes, 0, inputStream.available());
-        return bytes;
+    public Object getPhoto2(@PathVariable("id") int id, @PathVariable("imgUrl") String imgUrl) {
+        File file = new File("/root/data/user/" + id + "/" + imgUrl);
+        if (file.exists()) {
+            try {
+                FileInputStream inputStream = new FileInputStream(file);
+                byte[] bytes = new byte[inputStream.available()];
+                inputStream.read(bytes, 0, inputStream.available());
+                return bytes;
+            } catch (IOException e) {
+                // 处理读取文件异常
+                return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
+            }
+        } else {
+            // 文件不存在，返回错误信息
+            return new ResponseEntity<>("文件不存在", HttpStatus.FORBIDDEN);
         }
-        return null;
     }
     @GetMapping("test")
     public String test() {
         return "test";
     }
+    @GetMapping("test/user/login")
+    public Object testUserLogin() {
+        User a=new User();
+        a.setPassword("123456");
+        a.setAdmin(true);
+        a.setUserId(546);
+        a.setGender(true);
+        a.setUserName("wang99");
+
+        return signInUp(a);
+    }
+    @GetMapping("test/new")
+    public Object testnew() {
+
+        return newService.getAll();
+    }
+
+
     @GetMapping("test1")
     public  Object test111(){
         return newService.getAll();
@@ -512,7 +587,7 @@ public class Controller {
     public Object test1() {
         New new_t=new New();
         new_t.setNewId(0);
-        new_t.setRead(false);
+        new_t.setNewRead(false);
         new_t.setType(0);
         new_t.setOtherName(service.getNameById(520));
         new_t.setContent("hhhh");
@@ -539,19 +614,6 @@ public class Controller {
         //return commentService.getAll();
     }
 
-    @GetMapping("/test/test2")//测试上传图片
-    public String test12() {
-        try {
-            Path imagePath = Paths.get("D:/Desktop/2.jpg");
-            byte[] imageData = Files.readAllBytes(imagePath);
-            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
-            imageUpload2(file, 10);
-            return "Test upload image";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload image: " + e.getMessage();
-        }
-    }
 
 
     @GetMapping("test2/{id}/{orderId}")//访问test2/123/456
@@ -574,5 +636,17 @@ public class Controller {
         String a="ss";
         return courses;
     }
-
+    @GetMapping("/test/image")//测试上传图片
+    public String testImage(@RequestParam int id) {
+        try {
+            Path imagePath = Paths.get("D:/Desktop/2.jpg");
+            byte[] imageData = Files.readAllBytes(imagePath);
+            MultipartFile file = new MockMultipartFile("1.jpg","1.jpg",MediaType.IMAGE_JPEG_VALUE, imageData);
+            imageUpload2(file, id);
+            return "Test upload image";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to upload image: " + e.getMessage();
+        }
+    }
 }

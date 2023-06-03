@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LikeRepository extends CrudRepository<myLike, Integer> {
     myLike findByUserIdAndPostIdAndCommentIdAndCourseCommentId(int userId,int postId,int commentId,int courseCommentId);
-
+    boolean existsByUserIdAndPostIdAndCommentIdAndCourseCommentId(int userId,int postId,int commentId,int courseCommentId);
     Iterable<myLike> findByUserId(int userID);
 }

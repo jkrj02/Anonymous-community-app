@@ -1,1 +1,4 @@
-# Anonymous-community-app
+# 匿名社区安卓APP——理说
+### an Anonymous-community-app
+### 北京理工大学2023春软件工程基础课程小组项目
+#### 开发者：淄博烧烤组（开发一部）
