@@ -1,15 +1,17 @@
 package com.example.anonymous_community_app.ui.post
 
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.anonymous_community_app.R
 import com.example.anonymous_community_app.data.Post
 import com.example.anonymous_community_app.ui.Utils
 
-class PostAdapter(val postList: List<Post>) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
+class PostAdapter(val activity: Activity, val postList: List<Post>) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     class PostViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         //获取子条目的布局控件ID
@@ -54,6 +56,9 @@ class PostAdapter(val postList: List<Post>) : RecyclerView.Adapter<PostAdapter.P
         holder.likeCount.text = postList[p0].likeCount.toString()
         holder.dislikeCount.text = postList[p0].dislikeCount.toString()
         holder.commentCount.text = postList[p0].commentCount.toString()
+        holder.itemView.setOnClickListener {
+            activity.findNavController(R.id.nav_host_fullscreen).navigate(R.id.postDetailFragment)
+        }
     }
 
 }

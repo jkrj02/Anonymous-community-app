@@ -24,6 +24,6 @@ public class Post {
     private int commentCount;
     private int likeCount;
     private int dislikeCount;
-    private Date time;
+    private int time;
 
 }

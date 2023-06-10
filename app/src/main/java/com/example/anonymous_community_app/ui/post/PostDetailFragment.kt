@@ -27,6 +27,9 @@ class PostDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPostDetailBinding.inflate(inflater, container, false)
+        binding.postDetailReturn.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
         return binding.root
     }
 

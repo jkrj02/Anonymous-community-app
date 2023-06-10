@@ -51,4 +51,15 @@
         android:name="com.example.anonymous_community_app.ui.me.MeSettingFragment"
         android:label="fragment_me_setting"
         tools:layout="@layout/fragment_me_setting" />
+    <fragment
+        android:id="@+id/postDetailFragment"
+        android:name="com.example.anonymous_community_app.ui.post.PostDetailFragment"
+        android:label="fragment_post_detail"
+        tools:layout="@layout/fragment_post_detail" />
+    <fragment
+        android:id="@+id/courseDetailFragment"
+        android:name="com.example.anonymous_community_app.ui.course.CourseDetailFragment"
+        android:label="fragment_course_detail"
+        tools:layout="@layout/fragment_course_detail" />
+
 </navigation>

@@ -28,7 +28,7 @@ public class Comment {
     private int commentCount;
     private int likeCount;
     private int dislikeCount;
-    private Date time;
+    private int time;
     private boolean valid;
 
 

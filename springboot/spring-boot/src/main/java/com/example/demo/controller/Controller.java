@@ -46,7 +46,7 @@ public class Controller {
 
     @PersistenceContext
     private EntityManager entityManager;
-    @PostMapping("user/login")//注册登录
+    @PostMapping("user/login")//登录
     public Object signInUp(@RequestBody User user) {
         if (service.exists(user)) {
             User u = service.findByNameAndPassword(user);
@@ -175,7 +175,7 @@ public class Controller {
     
     @GetMapping("post/search/{keyword}")
     public Object searchPost(@PathVariable String keyword) {
-       String sql = "SELECT * FROM post INNER JOIN comment ON post.post_id = comment.post_id " +
+       String sql = "SELECT distinct post.* FROM post LEFT JOIN comment ON post.post_id = comment.post_id " +
                 "where post.user_name like '%";
         sql += keyword;
         sql += "%' or post.content like '%";
@@ -206,7 +206,7 @@ public class Controller {
         {
             return new ResponseEntity <> ("帖子已删除", HttpStatus.BAD_REQUEST);
         }
-     String sql = "SELECT * FROM comment INNER JOIN post ON post.post_id = comment.post_id " +
+     String sql = "SELECT * FROM comment LEFT JOIN post ON post.post_id = comment.post_id " +
                 "where post.post_id = ";
         sql += String.valueOf(postId);
         Query query = entityManager.createNativeQuery(sql, Comment.class);//指定返回类型
@@ -380,8 +380,8 @@ public class Controller {
     }
 
     @PostMapping("like/add")//点赞
-    public Object addLike(@RequestBody myLike a) {
-        if(likeService.exist(a))
+    public Object addLike(@RequestBody myLike a) {//传入一个点赞对象
+        if(likeService.exist(a))//判断是否已点赞
         {
             return new ResponseEntity <> ("已点赞" , HttpStatus.FORBIDDEN);
         }

@@ -65,7 +65,7 @@ class PostFragment : Fragment() {
             val type = binding.postType.selectedTabPosition
             val sortType = binding.postSortType.selectedTabPosition
             val postList = Utils.sortPost(it, type, sortType)
-            binding.postList.adapter = PostAdapter(postList)
+            binding.postList.adapter = PostAdapter(requireActivity(), postList)
         }
 
         binding.postType.addOnTabSelectedListener(onTabSelectedListener)

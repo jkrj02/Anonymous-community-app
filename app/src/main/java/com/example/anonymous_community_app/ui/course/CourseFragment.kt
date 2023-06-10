@@ -34,7 +34,7 @@ class CourseFragment : Fragment() {
         }
 
         viewModel.courseList.observe(viewLifecycleOwner) {
-            binding.courseList.adapter = CourseAdapter(requireContext(), it)
+            binding.courseList.adapter = CourseAdapter(requireActivity(), requireContext(), it)
         }
         return binding.root
     }

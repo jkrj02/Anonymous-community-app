@@ -49,7 +49,7 @@ class MePublicationAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onBindViewHolder(holder: PostViewHolder, p0: Int) {
-        holder.title.text = "发布${p0+1}"
+        holder.title.text = postList[p0].content
         holder.delete.setOnClickListener {
             CoroutineScope(Dispatchers.Main).launch {
                 var restResponse = Interface.deleteMyPost(postList[p0].postId)
